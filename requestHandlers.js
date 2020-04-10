@@ -47,13 +47,13 @@ export default function initializeSockets(server){
 
 		socket.on('newRoom',function(data){
 
-			let room = new Room(escapeHtml(data.name),data.spyFullAllowed);
+			let room = new Room(escapeHtml(data.name), data.gameType, data.gameOptions);
 
 			room.addPlayer(socket.player);
 
 		});
 
-		socket.on('leaveRoom',function(data){
+		socket.on('leaveRoom',function(){
 			let room = Room.get(socket.player.roomId);
 			if(socket.player.inRoom){
 				room.removePlayer(socket.player);
@@ -86,7 +86,7 @@ export default function initializeSockets(server){
 		});
 
 
-		socket.on('disconnect', function (reason){
+		socket.on('disconnect', function (){
 			socket.player.disconnectSocket(socket);
 			console.log("socket disconnected");
 

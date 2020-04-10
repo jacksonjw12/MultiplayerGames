@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-	<title>JacksonJW SpyFall</title>
+	<title>JacksonJW Games</title>
 	<meta charset="UTF-8">
 	<link rel="stylesheet" type="text/css" href="index.css">
 	<script src="/socket.io/socket.io.js"></script><!--socket io client-->
@@ -24,28 +24,37 @@
 
 
 	<div id="page_welcome" >
-		<h1> Welcome to Spyfall </h1>
+		<h1> Welcome to JacksonJW Games </h1>
 	</div>
 
 	<div id="page_welcomeWithName" style="display:none">
-		<h1> Welcome to Spyfall </h1>
-		<input type="text" id="playerNameInput" class="bigTextInput" placeholder="Name"></br>
+		<h1> Welcome to JacksonJW Games </h1>
+		<input type="text" id="playerNameInput" class="bigTextInput" placeholder="Name"><br>
 		<button class="introButton" id="nameSubmitButton" onclick="changeName()">Enter</button>
 	</div>
 
 	<div id="page_rooms" style="display:none">
 		<!-- <input type="text" id="roomName" class="medTextInput" placeholder="Room ID"></input> -->
-		<button class="smallerIntroButton" id="joinButton" onclick="createNewRoom()">New Room</button></br>
+		<button class="smallerIntroButton" id="joinButton" onclick="createNewRoom()">New Room</button><br>
 
 		<div id="rooms"></div>
 	</div>
 
 
 	<div id="page_createRoom" style="display:none">
-		<input type="text" id="roomNameInput" class="bigTextInput" placeholder="Room Name"></br></br>
-		<input type="checkbox" id="playWithSpyFull" name="playWithSpyFull" checked><label for="playWithSpyFull">Play with a chance of all players being spies(SpyFull)?</label></br></br>
-		<button class="smallerIntroButton" id="newRoom" onclick="newRoom()">Create New Room</button></br></br>
-		<button class="smallerIntroButton" id="hideCreateNewRoom" onclick="hideCreateNewRoom()">Go Back</button></br>
+		<input type="text" id="roomNameInput" class="bigTextInput" placeholder="Room Name"><br><br>
+
+		<label for="gameSelection">Choose a Game:</label>
+		<select id="gameSelection" onChange="handleGameSelect(this)">
+			<option value="SpyFall">SpyFall</option>
+			<!--<option value="MatchIt">Match It</option>-->
+		</select>
+		<br><br>
+		<div id="gamesSelectionOptions">
+		</div>
+		<script>document.getElementById("gamesSelectionOptions").innerHTML = SpyFall.getGameOptionsHTML();</script>
+		<button class="smallerIntroButton" id="newRoom" onclick="newRoom()">Create New Room</button><br><br>
+		<button class="smallerIntroButton" id="hideCreateNewRoom" onclick="hideCreateNewRoom()">Go Back</button><br>
 	</div>
 
 

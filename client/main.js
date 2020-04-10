@@ -24,7 +24,7 @@ function changeName(){
 }
 function giveName(playerName){
 	if ( !(/\S/.test(playerName)) || playerName.length > 16){
-		console.log("Bad name, all whitespace or length 0 or >16")
+		console.log("Bad name, all whitespace or length 0 or >16");
    		return false;
 	}
 
@@ -54,15 +54,35 @@ function connectRoom(roomId){
 =============================================================================================
 
 */
+
+function handleGameSelect(e){
+	let game = e.value;
+	if(game === "SpyFall"){
+		document.getElementById("gamesSelectionOptions").innerHTML = SpyFall.getGameOptionsHTML();
+	}
+
+}
+
+
 function newRoom(){
 	let roomName = document.getElementById("roomNameInput").value;
-	let playWithSpyFull = document.getElementById("playWithSpyFull").checked;
+	let gameType = document.getElementById("gameSelection").value;
+	let gameOptions;
+	if(gameType === "SpyFall"){
+		gameOptions = SpyFall.readGameOptions();
+	}
+	else{
+		alert("Please select a game");
+		console.log("no game selected");
+		return;
+	}
+
 	if ( !(/\S/.test(roomName)) || roomName.length > 16) {
         alert("Please enter a valid name (less than 16 characters)");
         return false;
     }
     else{
-    	globals.socket.emit('newRoom',{"name":roomName,"playWithSpyfull":playWithSpyFull});
+    	globals.socket.emit('newRoom',{"name":roomName,"gameOptions":gameOptions,"gameType":gameType});
 	}
 
 
@@ -146,9 +166,8 @@ function initializeSocketHandlers(){
 		let body = "";
 		for(let r in data.rooms){
 
-			room = data.rooms[r];
-			console.log(room)
-			body += "<tr><td>" + room.name + "</td><td>" + room.numPlayers + '</td><td><button class="connectButton" onclick="connectRoom('+"'"+ room.id +"'"+')">Connect</button</td</tr>'
+			let room = data.rooms[r];
+			body += "<tr><td>" + room.name + "</td><td>" + room.numPlayers + '</td><td><button class="connectButton" onclick="connectRoom('+"'"+ room.id +"'"+')">Connect</button</td</tr>';
 
 		}
 

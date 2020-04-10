@@ -1,6 +1,7 @@
 class SpyFall {
 
     constructor(containerId,room) {
+        this.room = room;
         this.container = document.getElementById(containerId);
         this.container.innerHTML = spyFallHTML;
         this.game = {};
@@ -43,7 +44,8 @@ class SpyFall {
                 document.getElementById("vote_buttons").style.display = "block";
             }
             else{
-                let str = "Waiting for "+ game.votingData.numLeftToVote + " player" + ((game.votingData.numLeftToVote !== 1)?"s":"") + " to finish voting...";
+                let str = "Waiting for "+ game.votingData.numLeftToVote + " player";
+                str += ((game.votingData.numLeftToVote !== 1)?"s":"") + " to finish voting...";
                 document.getElementById("vote_playerName").innerHTML = str;
                 document.getElementById("vote_buttons").style.display = "none";
             }
@@ -164,6 +166,13 @@ class SpyFall {
             document.getElementById("sensitiveInfo").style.display = "block";
             document.getElementById("locationToggleText").innerHTML = "hide";
         }
+    }
+    static readGameOptions(){
+        let playWithSpyFull = document.getElementById("playWithSpyFull").checked;
+        return {"playWithSpyFull":playWithSpyFull}
+    }
+    static getGameOptionsHTML(){
+        return`<input type="checkbox" id="playWithSpyFull" name="playWithSpyFull" checked><label for="playWithSpyFull">Play with a chance of all players being spies(SpyFull)?</label></br></br>`
     }
 
 }

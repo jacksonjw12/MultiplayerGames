@@ -36,9 +36,11 @@ export default class SpyFallGame{
 		this.location = locations[Math.floor(Math.random()*locations.length)];
         this.scene = "default";//default, vote, results
         let spyFullChance = Math.random()*100;
-        this.spyFullAllowed = this.room.spyFullAllowed;
+
+        this.spyFullAllowed = this.room.gameOptions.playWithSpyFull;
+
         this.spyFullGame = false;
-        if(spyFullChance > 95 && this.room.spyFullAllowed){
+        if(spyFullChance > 95 && this.spyFullAllowed){
             this.spyFullGame = true;
             this.createSpyFullGame();
 

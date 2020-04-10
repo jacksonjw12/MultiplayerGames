@@ -2,17 +2,17 @@ import SpyFallGame from './SpyFallGame';
 import PlayerList from './PlayerList'
 export default class Room extends PlayerList{
 
-	constructor(roomName, permanent, spyFull){
+	constructor(roomName, gameType, gameOptions, permanent){
         super();
 
         this.id = Room.makeId();
         this.name = (roomName === undefined) ? this.id : roomName;
 
 
-		this.spyFullAllowed = (spyFull !== undefined)? spyFull:false;
-        this.stage = "lobby";//lobby, game
+        this.gameOptions = gameOptions;
+		this.stage = "lobby";//lobby, game
         this.game = {};
-        this.gameType =  "SpyFall";
+        this.gameType =  gameType;
         this.permanentRoom = (permanent !== undefined)?permanent:false;
 		this.adminId = undefined;
         Room.registerRoom(this)
@@ -68,7 +68,13 @@ export default class Room extends PlayerList{
 
 	    if(this.stage === "lobby" && SpyFallGame.evaluateRoomReadyState(this)){
 	        this.stage = "game";
-	        this.game = new SpyFallGame(this);
+	        if(this.gameType === "SpyFall"){
+	            this.game = new SpyFallGame(this);
+            }
+            else{
+                this.game = {}
+            }
+
 	        this.forcePlayerSync();
         }
         else{
@@ -172,5 +178,5 @@ function makeId()
     return text;
 }
 
-let r = new Room("Room 1",true,true);
-let r2 = new Room("Room 2",true,false);
+new Room("Room 1","SpyFall",{"playWithSpyFall":true},true);
+new Room("Room 2","SpyFall",{"playWithSpyFall":false},true);
