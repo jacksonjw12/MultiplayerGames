@@ -1,2 +1,7 @@
-# BuildBase
-Test Multiplayer Game In HTML5 Canvas using Socket.io, NodeJS+Express
+# Multiplayer Games
+Multiplayer Games In HTML5 Canvas using Socket.io, NodeJS+Express
+#####Games Included:
+SpyFall
+#####Games Planned:
+Match It  
+Asteroids
