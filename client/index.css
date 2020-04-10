@@ -1,0 +1,210 @@
+
+.fullSize {
+	width:100%;
+}
+.halfSize {
+	width:50%;
+}
+#intro {
+	text-align:center;
+}
+.bigTextInput {
+	width: 50%;
+    padding: 12px 20px;
+    margin: 8px 0;
+    font-size: 20px;
+    box-sizing: border-box;
+}
+
+.medTextInput {
+	width: 40%;
+    padding: 12px 20px;
+    margin: 8px 0;
+    font-size: 20px;
+    box-sizing: border-box;
+}
+.roomTable {
+	margin-bottom:0px;
+	font-size: 20px;
+	width:30%;
+	display: inline-table;
+	text-align:center;
+	margin-left: auto;
+	margin-right: auto;
+
+}
+.smallerIntroButton {
+	font-size: 20px;
+	/*padding: 10px 10px 10px 10px;*/
+	width:20%;
+	padding: 12px 20px;
+
+	background: #ffffff;
+	background-image: -webkit-linear-gradient(top, #ffffff, #ffffff);
+	background-image: -moz-linear-gradient(top, #ffffff, #ffffff);
+	background-image: -ms-linear-gradient(top, #ffffff, #ffffff);
+	background-image: -o-linear-gradient(top, #ffffff, #ffffff);
+	background-image: linear-gradient(to bottom, #ffffff, #ffffff);
+}
+.connectButton {
+	font-size: 16px;
+	padding: 5px 10px 5px 10px;
+	background: #ffffff;
+	background-image: -webkit-linear-gradient(top, #ffffff, #ffffff);
+	background-image: -moz-linear-gradient(top, #ffffff, #ffffff);
+	background-image: -ms-linear-gradient(top, #ffffff, #ffffff);
+	background-image: -o-linear-gradient(top, #ffffff, #ffffff);
+	background-image: linear-gradient(to bottom, #ffffff, #ffffff);
+}
+.introButton {
+	font-size: 40px;
+	padding: 10px 10px 10px 10px;
+	width:50%;
+	background: #ffffff;
+	background-image: -webkit-linear-gradient(top, #ffffff, #ffffff);
+	background-image: -moz-linear-gradient(top, #ffffff, #ffffff);
+	background-image: -ms-linear-gradient(top, #ffffff, #ffffff);
+	background-image: -o-linear-gradient(top, #ffffff, #ffffff);
+	background-image: linear-gradient(to bottom, #ffffff, #ffffff);
+
+}
+
+
+
+.lobby-player-list {
+	display:inline-table;
+	vertical-align:top;
+    margin-top: 0px;
+    margin-bottom: 10px;
+    counter-reset:li; /* Initiate a counter */
+    margin-left:0; /* Remove the default left margin */
+    padding-left:0; /* Remove the default left padding */
+}
+
+.lobby-player-list > li {
+    text-align: left;
+    background: 1px solid #000;
+    position:relative; /* Create a positioning context */
+    margin:0 0 6px 2em; /* Give each list item a left margin to make room for the numbers */
+    padding:4px 8px; /* Add some spacing around the content */
+    list-style:none; /* Disable the normal item numbering */
+    background:transparent;
+    /*background-color: #f9f9f9;*/
+}
+
+.lobby-player-list > li:before {
+    content:counter(li); /* Use the counter as content */
+    counter-increment:li; /* Increment the counter by 1 */
+    /* Position and style the number */
+    position:absolute;
+    top:0;
+    left:-2em;
+    -moz-box-sizing:border-box;
+    -webkit-box-sizing:border-box;
+    box-sizing:border-box;
+    width:2em;
+    margin-right:8px;
+    padding: 5px 4px 3px 4px;
+    background:transparent;
+    font-weight:bold;
+    font-family:"Helvetica Neue", Arial, sans-serif;
+    text-align:center;
+    /*background-color: #f9f9f9;*/
+}
+
+
+.ingame-player-list li {
+    text-align: left;
+    -moz-box-sizing:border-box;
+    -webkit-box-sizing:border-box;
+    box-sizing:border-box;
+    width: 40%;
+    float: left;
+    list-style-type: none;
+    padding: 0px 10px 0 10px;
+    margin: 0px 5% 14px 0;
+    cursor: pointer;
+    font-size: 30px;
+
+}
+button {
+	cursor: pointer;
+
+}
+
+.player-name {
+    background-color: #f9f9f9;
+    padding: 3px 10px;
+
+}
+
+.player-name-striked {
+    background-color: #f9f9f9;
+    padding: 3px 10px;
+    color: #bbb;
+    text-decoration: line-through;
+}
+.game {
+	text-align:center;
+}
+.locationClass {
+	border:1px solid black;
+	width:30%;
+	display:inline-block
+}
+.locationDisplayToggle {
+	float:right;
+	cursor: pointer;
+}
+.ingameplayerListContainer {
+	display:inline-block;
+	 width:40%
+}
+.firstPlayer {
+	float:right;
+	font-size:15;
+	color:red;
+}
+.locationRefList {
+	display:inline-block;
+	text-align: left;
+	 vertical-align: top;
+    -moz-box-sizing:border-box;
+    -webkit-box-sizing:border-box;
+    box-sizing:border-box;
+    width: 15%;
+
+    list-style-type: none;
+    padding: 0 20px 0 0;
+    /*margin:;*/
+    margin: 0 0 14px 0;
+    cursor: pointer;
+    font-size: 20px;
+
+
+
+
+
+
+}
+#locationRefList{
+	text-align:right;
+}
+.locationReference {
+	  line-height:1.5em;
+  border:1px solid #ccc;
+  padding: 1px 5px 1px 5px;
+  /*float:left;*/
+  /*display:inline;*/
+
+
+
+}
+.locationReference-striked {
+
+    text-decoration: line-through;
+    background-color: #f9f9f9;
+
+    color: #bbb;
+
+}

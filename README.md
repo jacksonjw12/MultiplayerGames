@@ -1,2 +1,2 @@
-# MultiplayerGames
-Some online HTML5 multiplayer games I have made
+# BuildBase
+Test Multiplayer Game In HTML5 Canvas using Socket.io, NodeJS+Express
