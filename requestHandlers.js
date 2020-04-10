@@ -107,17 +107,24 @@ export function authorize(req, res){
 
 		let cookieParts = cookie.split('; ');
 
+		let playerId, authCode;
 		for(let c = 0; c < cookieParts.length; c++){
 			if(cookieParts[c].indexOf("playerId=") > -1){
-				let playerId = cookieParts[c].substr(9);//playerId=
-				player = Player.get(playerId);//returns undefined if no player exists with that id
+				playerId = cookieParts[c].substr(9);//playerId=
+			}
+			else if(cookieParts[c].indexOf("authCode=") > -1){
+				authCode = cookieParts[c].substr(9);
 			}
 		}
+		if(playerId !== undefined && authCode !== undefined){
+			player = Player.get(playerId,authCode);//returns undefined if no player exists with that id
 
+		}
 	}
 
 	if(cookie === undefined || player === undefined){
 		player = new Player();
+		res.cookie('authCode',player.authCode,{maxAge: 900000});
 		res.cookie('playerId', player.id, {maxAge: 900000})
 	}
 	console.log("player name: " + player.name);

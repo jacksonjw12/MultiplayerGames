@@ -5,6 +5,7 @@ export default class Player{
 
 	constructor() {
         this.id = Player.makePlayerId();
+        this.authCode = makeId();
         this.sockets = [];
         this.name = this.id;
         Player.registerPlayer(this);
@@ -111,9 +112,15 @@ export default class Player{
         Player.players.push(player);
 
     }
-    static get(id){
+    static get(id,authCode){
 	    for(let i = 0; i< Player.players.length; i++){
             if (Player.players[i].id === id){
+                if(authCode !== undefined){
+                    if(Player.players[i].authCode === authCode){
+                        return Player.players[i]
+                    }
+                    return undefined;
+                }
                 return Player.players[i];
             }
         }
