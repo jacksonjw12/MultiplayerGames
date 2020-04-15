@@ -63,28 +63,23 @@
     .title {
         font-size: 5vw;
     }
-
     .subTitle {
         font-size: 3vw;
     }
-
     .subTitle.roomTitle {
         font-size: 3.5vw;
     }
 }
 @media (orientation: portrait) {
-
     .title {
         font-size: 6vw;
     }
     .title.roomTitle {
         font-size:7vw;
     }
-
     .subTitle {
         font-size: 4vw;
     }
-
     .subTitle.roomTitle {
         font-size: 5vw;
     }
@@ -94,6 +89,7 @@ body{
     padding:0;
     font-family:"Courier New", serif;
     font-weight: lighter;
+    overflow:hidden;
 }
 .fullSize {
 	width:100%;
