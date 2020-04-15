@@ -1,3 +1,52 @@
+/*IMPORTANT INFO*/
+/*https://css-tricks.com/the-trick-to-viewport-units-on-mobile/*/
+/*All vertical height requirements must use this class*/
+
+.fullHeight {
+    height: 100vh; /* Fallback for browsers that do not support Custom Properties */
+    height: calc(var(--vh, 1vh) * 100);
+}
+.halfHeight {
+    height:50%;
+    height: calc(var(--vh, 1vh) * 50);
+}
+.quarterHeight {
+    height:25%;
+    height: calc(var(--vh, 1vh) * 25);
+}
+.gameSelectOptions {
+    height:20vh;
+    height: calc(var(--vh, 1vh) * 20);
+}
+
+@media (orientation: landscape) {
+    .verticalPagePadding {
+        height:10vh;
+        height: calc(var(--vh, 1vh) * 10);
+
+    }
+    .lessVerticalPagePadding {
+        height:5vh;
+        height: calc(var(--vh, 1vh) * 5);
+
+    }
+
+}
+@media (orientation: portrait) {
+    .verticalPagePadding {
+        height: calc(var(--vh, 1vh) * 20);
+
+    }
+    .lessVerticalPagePadding {
+        height: calc(var(--vh, 1vh) * 10);
+    }
+
+}
+
+
+/* End Important Info*/
+
+
 /*Fonts and text sizing*/
 .courier {
     font-family: "Courier New", serif;
@@ -33,7 +82,6 @@ body{
 
 /* Side Borders*/
 .pageBorderContainer {
-    height:100vh;
     width:2%;
 }
 #pageRightBorder{
@@ -43,7 +91,6 @@ body{
     float:right;
 }
 .pageBorder{
-    height:100vh;
     width:0;
     transition: all .8s cubic-bezier(0.83, 0, 0.17, 1);
 }
@@ -56,7 +103,6 @@ body{
 
 /* Page Styling*/
 .pageContent {
-    height:100vh;
     flex-grow:2;
 }
 .page {
@@ -68,7 +114,6 @@ body{
     align-items:center;
     justify-items: center;
     width:100%;
-    height:100vh;
 
 }
 .bottomSegment {
@@ -119,21 +164,12 @@ body{
 .fullWidth {
     width: 100%;
 }
-.fullHeight {
-    height:100%;
-}
-.halfHeight {
-    height:50%;
-}
-.quarterHeight {
-    height:25%;
-}
+
+
 .verticalCenter {
     justify-items: center;
 }
-.gameSelectOptions {
-    height:20vh;
-}
+
 
 /* Inputs */
 
@@ -168,12 +204,6 @@ body{
 
 
 @media (orientation: landscape) {
-    .verticalPagePadding {
-        height:10vh;
-    }
-    .lessVerticalPagePadding {
-        height:5vh;
-    }
 
     .largeButton {
         font-size: 5vw;
@@ -197,23 +227,12 @@ body{
 
     }
 
-
-
-
 }
 @media (orientation: portrait) {
-    .verticalPagePadding {
-        height:20vh;
 
-    }
-    .lessVerticalPagePadding {
-        height:10vh;
-    }
     .bigTextInput {
         font-size:40px;
     }
-
-
     .largeButton {
         font-size: 6vw;
         padding: 10px 10px 10px 10px;
@@ -226,7 +245,6 @@ body{
         padding: 12px 20px;
 
     }
-
     .verySmallButton { /*used to be called smallerIntroButton */
         font-size: 2vw;
 
@@ -235,10 +253,7 @@ body{
 
     }
 
-
-
 }
-
 
 .playerList{
     display:flex;
@@ -281,22 +296,21 @@ body{
 
         width:80vw;
         height:30vh;
+        height: calc(var(--vh, 1vh) * 30);
     }
     .player-name {
         font-size:2vw;
         width:20vw;
         height:7vw;
-
     }
-
-
 
 }
 @media (orientation: portrait) {
     .playerList{
 
         width:80vw;
-        height:60vw;
+        height:60vh;
+        height: calc(var(--vh, 1vh) * 60);
     }
     .player-name {
         font-size:4vmin;

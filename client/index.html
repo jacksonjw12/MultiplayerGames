@@ -3,6 +3,17 @@
 <head>
 	<title>JacksonJW Games</title>
 	<meta charset="UTF-8">
+	<script>
+
+	function setVH(){
+		// First we get the viewport height and we multiple it by 1% to get a value for a vh unit
+		let vh = window.innerHeight * 0.01;
+		// Then we set the value in the --vh custom property to the root of the document
+		document.documentElement.style.setProperty('--vh', `${vh}px`);
+	}
+	window.addEventListener('resize', setVH);
+	setVH();
+	</script>
 	<link rel="stylesheet" type="text/css" href="css/index.css">
 	<link rel="stylesheet" type="text/css" href="css/fixedHeaderTable.css">
 	<link rel="stylesheet" type="text/css" href="css/customSelector.css">
@@ -19,12 +30,12 @@
 </head>
 
 <body>
-<div class="pageContainer">
+<div class="pageContainer fullHeight">
 	<div class="pageBorderContainer">
-		<div id="pageLeftBorder" class="pageBorder"></div>
+		<div id="pageLeftBorder" class="pageBorder fullHeight"></div>
 	</div>
 
-	<div class="pageContent">
+	<div class="pageContent fullHeight">
 		<!-- Auth and Socket loading page-->
 		<div id="page_welcome" class="page pageWelcome">
 			<div class="verticalPagePadding"></div>
@@ -33,7 +44,7 @@
 		</div>
 
 		<!-- Landing Page-->
-		<div id="page_welcomeWithName" class="page pageWelcomeWithName">
+		<div id="page_welcomeWithName" class="page pageWelcomeWithName" style="display:none;">
 			<div class="verticalPagePadding"></div>
 			<h1 class="courier title">Welcome to JacksonJW Games</h1>
 			<input type="text" id="playerNameInput" class="bigTextInput" placeholder="Enter your name"><br>
@@ -91,7 +102,7 @@
 		<div id="room_pages" class="page pageLobby" style="display:none">
 
 			<div class="pageBorderContainer">
-				<div id="roomLeftBorder" class="pageBorder"></div>
+				<div id="roomLeftBorder" class="pageBorder fullHeight"></div>
 			</div>
 
 			<!--Lobby-->
@@ -115,14 +126,14 @@
 			</div>
 
 			<div class="pageBorderContainer">
-				<div id="roomRightBorder" class="pageBorder"></div>
+				<div id="roomRightBorder" class="pageBorder fullHeight"></div>
 			</div>
 
 		</div>
 	</div>
 
 	<div class="pageBorderContainer">
-		<div id="pageRightBorder" class="pageBorder"></div>
+		<div id="pageRightBorder" class="pageBorder fullHeight"></div>
 	</div>
 
 </div>
