@@ -183,6 +183,6 @@ function makeId()
 export let room1 = new Room("Room 1","SpyFall",{"playWithSpyFall":true},true);
 
 export let room2 = new Room("Room 2","SpyFall",{"playWithSpyFall":false},true);
-for(let i = 3; i < 50; i++){
+for(let i = 3; i < 5; i++){
     new Room("Room " + i,"SpyFall",{"playWithSpyFall":true},true);
 }

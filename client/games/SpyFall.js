@@ -1,5 +1,6 @@
 class SpyFall {
 
+
     constructor(containerId,room) {
         this.room = room;
         this.container = document.getElementById(containerId);
@@ -8,6 +9,9 @@ class SpyFall {
         this.nominating = false;
         this.guessingLocation = false;
         this.allowedToVote = false;
+        this.numPlayers = 0;
+        this.shouldInitialize = true;
+
         this.debugGameController = new DebugGameController(
             [
                 {"name":"default","id":"scene_default"},
@@ -17,17 +21,69 @@ class SpyFall {
                 {"name":"results","id":"scene_results"}
 
         ],this);
+
+        this.nominatePlayers = document.getElementById("nominatePlayers");
+        this.inGamePlayers = document.getElementById("inGamePlayers");
+
+
+
     }
+    initialize(){
+        if(globals.debug){
+            console.log("Initializing Game: ", this.game);
+        }
+        if(this.room.admin === this.game.playerData.id){
+            document.getElementById("endGame").style.display = "inline-block";
+        }
+        this.identity = this.game.playerData.identity;
+        this.role = this.game.playerData.role;
+        this.location = this.game.location;
+
+        if(this.identity === "innocent"){
+            document.getElementById("location").innerHTML = "Location: " + this.location;
+            document.getElementById("role").innerHTML = "Role: " + this.role;
+        }
+        else if(this.identity === "spy"){
+            document.getElementById("location").innerHTML = "You are a spy";
+            document.getElementById("role").style.display = "none";
+            document.getElementById("showGuessLocationScreen").style.display = "inline-block";
+        }
+        else{//spectator
+            document.getElementById("location").innerHTML = "You are a spectator";
+            document.getElementById("role").style.display = "none";
+        }
+
+        this.updatePlayerLists();
+
+    }
+    updatePlayerLists(){
+        let inGamePlayerContent = '';
+        let nominatePlayersContent = '';
+
+		for(let p = 0; p < this.game.players.length; p++){
+			inGamePlayerContent+=getIGPlayerItem(this.game.players[p],this.game.firstPlayerId);
+            nominatePlayersContent+=getNominatePlayerItem(this.game.players[p],this.game.playerData.id);
+		}
+		if(this.game.spyFullAllowed && this.game.playerData.identity === "spy"){
+		    nominatePlayersContent+=getNominatePlayerItem({"name":"<b>Everyone here is a spy!</b>","id":""},"");
+        }
+		this.inGamePlayers.innerHTML = inGamePlayerContent;
+        this.nominatePlayers.innerHTML = nominatePlayersContent;
+
+        this.numPlayers = this.game.players.length;
+    }
+
     update(game,room){
         this.game = game;
         this.room = room;
-        if(room.admin === game.playerData.id){
-            document.getElementById("endGame").style.display = "inline-block";
+        if(this.shouldInitialize){
+            this.shouldInitialize = false;
+            this.initialize();
         }
-        console.log("Updating Game: ", game);
-        this.identity = game.playerData.identity;
-        this.role = game.playerData.role;
-        this.location = game.location;
+        if(globals.debug){
+            console.log("Updating Game: ", game);
+        }
+
 
 
 
@@ -78,37 +134,18 @@ class SpyFall {
         }
 
 
-        if(this.identity === "innocent"){
-            document.getElementById("location").innerHTML = "Location: " + this.location;
-            document.getElementById("role").innerHTML = "Role: " + this.role;
-        }
-        else if(this.identity === "spy"){
-            document.getElementById("location").innerHTML = "You are a spy";
-            document.getElementById("role").style.display = "none";
-            document.getElementById("showGuessLocationScreen").style.display = "inline-block";
-        }
-        else{//spectator
-            document.getElementById("location").innerHTML = "You are a spectator";
-            document.getElementById("role").style.display = "none";
+
+        if(this.numPlayers !== this.game.players.length){
+            this.updatePlayerLists();
         }
 
 
-        document.getElementById("ingamePlayers").innerHTML = '';
-        document.getElementById("nominatePlayers").innerHTML = '';
-		for(let p = 0; p < game.players.length; p++){
-			//console.log(document.getElementById("menuPlayers").innerHTML);
-			document.getElementById("ingamePlayers").innerHTML+=getIGPlayerItem(game.players[p],room.admin);
-            document.getElementById("nominatePlayers").innerHTML+=getNominatePlayerItem(game.players[p],game.playerData.id);
-		}
-		if(game.spyFullAllowed && game.playerData.identity === "spy"){
-		    document.getElementById("nominatePlayers").innerHTML+=getNominatePlayerItem({"name":"<b>Everyone here is a spy!</b>","id":""},"");
-        }
 
-        document.getElementById("scene_guessLocation").style.display = (!this.nominating &&this.guessingLocation && game.scene === "default")?"block":"none";
-        document.getElementById("scene_nominate").style.display = (this.nominating && game.scene === "default")?"block":"none";
-        document.getElementById("scene_default").style.display = (!this.nominating && !this.guessingLocation && game.scene === "default")?"block":"none";
-        document.getElementById("scene_vote").style.display = (game.scene === "vote" && this.identity !== "spectator")?"block":"none";
-        document.getElementById("scene_results").style.display = (game.scene === "results")?"block":"none";
+        document.getElementById("scene_guessLocation").style.display = (!this.nominating &&this.guessingLocation && game.scene === "default")?"flex":"none";
+        document.getElementById("scene_nominate").style.display = (this.nominating && game.scene === "default")?"flex":"none";
+        document.getElementById("scene_default").style.display = (!this.nominating && !this.guessingLocation && game.scene === "default")?"flex":"none";
+        document.getElementById("scene_vote").style.display = (game.scene === "vote" && this.identity !== "spectator")?"flex":"none";
+        document.getElementById("scene_results").style.display = (game.scene === "results")?"flex":"none";
 
 
     }
@@ -163,6 +200,15 @@ class SpyFall {
         globals.socket.emit('gameInteraction',{"type":"nomination","nominateEveryone":false,"nomineeId":id})
 
     }
+    toggleStrike(e){
+        //probably don't let the player strike themself?
+        if(e.id.substring(2) === globals.playerId){
+            return;
+        }
+
+        e.classList.toggle("striked");
+    }
+
 
     static toggleLocationInfo(){
         if(document.getElementById("locationToggleText").innerHTML === "hide"){
@@ -179,25 +225,41 @@ class SpyFall {
         return {"playWithSpyFull":playWithSpyFull}
     }
     static getGameOptionsHTML(){
-        return`<input type="checkbox" id="playWithSpyFull" class="gameOptionsCheckbox" name="playWithSpyFull" checked><label for="playWithSpyFull" class="gameOptionsLabel">Play with a chance of all players being spies(SpyFull)?</label></br></br>`
+        return`<input type="checkbox" id="playWithSpyFull" class="gameOptionsCheckbox" name="playWithSpyFull" checked><div for="playWithSpyFull" class="gameOptionsLabel">Play with a chance of all players being spies(SpyFull)?</div></br></br>`
     }
+
+
+
 
 }
 
 function getResultsPlayerItem(player){
     return '<li class="player-name">' + player.name + " : " + ((player.identity === "spy")?"spy":player.role) +'</li>'
 }
-function getIGPlayerItem(plr,first){
+// function getIGPlayerItem(plr,first){
+//
+// 	if(plr.id === first){
+// 		return '<li class="player-name" onclick="strike(this)">'+plr.name+'<a class="firstPlayer">1st</a></li>'
+//
+// 	}
+// 	else{
+// 		return '<li class="player-name" onclick="strike(this)">'+plr.name+'</li>'
+//
+// 	}
+// }
 
-	if(plr.id === first){
-		return '<li class="player-name" onclick="strike(this)">'+plr.name+'<a class="firstPlayer">1st</a></li>'
+function getIGPlayerItem(plr,firstPlayerId){
 
-	}
-	else{
-		return '<li class="player-name" onclick="strike(this)">'+plr.name+'</li>'
+    if(plr.id === firstPlayerId){
 
-	}
+        return `<div class="player-name spyFallPlayerName" id="ig_${plr.id}" style="color:#${plr.id}" onClick="globals.game.toggleStrike(this)"><p class="player-name-text">${plr.name}</p><div class="firstPlayer">1st</div></div>`
+    }
+
+    return `<div class="player-name spyFallPlayerName" id="ig_${plr.id}" style="color:#${plr.id}" onClick="globals.game.toggleStrike(this)"><p class="player-name-text">${plr.name}</p></div>`
+
 }
+
+
 function getNominatePlayerItem(player,playerId){
     // console.log(player,first);
 	if(player.id !== playerId || playerId.length === 0){
@@ -219,12 +281,16 @@ let spyFallHTML =
 			</div>
 
 			<h3>Players</h3>
+                <div id="inGamePlayers" class="playerList flexColumn fullWidth">
+                
+                </div>
+                    
 
-			<div class="ingameplayerListContainer" >
-				<ul id="ingamePlayers" class="ingame-player-list">
-				</ul>
-				</br>
-			</div>
+<!--			<div class="ingameplayerListContainer" >-->
+<!--				<ul id="ingamePlayers" class="ingame-player-list">-->
+<!--				</ul>-->
+<!--				</br>-->
+<!--			</div>-->
 
 			</br>
 

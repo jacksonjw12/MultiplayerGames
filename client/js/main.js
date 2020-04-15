@@ -42,12 +42,11 @@ function receiveRooms(data){
 	for(let r = 0; r<data.rooms.length; r++){
 		let room = data.rooms[r];
 
-		htmlContents += '<div class="tableRow">';
+		htmlContents += `<div class="tableRow" onclick="connectRoom('${room.id}')">`;
 		htmlContents += `<div class="tableBodyElement"><div class="tableBodyElementContent roomName" ><u style="color:#${room.id}">${room.name}</u></div></div>`;
 		htmlContents += `<div class="tableBodyElement"><div class="tableBodyElementContent"> ${room.numPlayers}</div></div>`;
 		htmlContents += `<div class="tableBodyElement"><div class="tableBodyElementContent gameType">${room.gameType}</div></div>`;
 		htmlContents += `<div class="tableBodyElement"><div class="tableBodyElementContent">${room.stage}</div></div>`;
-		htmlContents += `<div class="tableBodyElement tableButton" onClick="connectRoom('${room.id}')"><div class="tableBodyElementContent" >Join</div></div>`;
 		htmlContents += '</div>';
 	}
 	body.innerHTML = htmlContents;
@@ -178,7 +177,7 @@ function playerSync(player) {
 	if(globals.inRoom){
 		//update the persistent lobby with new room data
 		globals.lobby.update();
-		if(globals.lobby.stage === "game"){
+		if(globals.room.stage === "game"){
 			gameUpdate();
 		}
 		else{//destroy ended games

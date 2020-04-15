@@ -50,6 +50,8 @@ export default class SpyFallGame{
         else{
             this.createNewGame(this.location);
         }
+        this.firstPlayerId = this.room.players[Math.floor(this.room.players.length*Math.random())].id;
+
 
 
 	}
@@ -256,6 +258,7 @@ export default class SpyFallGame{
 	    let data = {
 	        "scene": this.scene,
             "players":this.players,
+            "firstPlayerId":this.firstPlayerId,
             "spyFullAllowed":this.spyFullAllowed,
             "votingData":this.getCleanVotingData(),
             "gameOverReason":this.gameOverReason

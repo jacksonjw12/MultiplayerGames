@@ -53,17 +53,42 @@
     font-family: "Courier New", serif;
     font-weight: lighter;
 }
-.title {
-    font-size:5vw;
-}
+
 .roomTitle {
     margin-bottom:0;
+    margin-top:0;
 
 }
-.subTitle {
-    font-size:3vw;
-}
+@media (orientation: landscape) {
+    .title {
+        font-size: 5vw;
+    }
 
+    .subTitle {
+        font-size: 3vw;
+    }
+
+    .subTitle.roomTitle {
+        font-size: 3.5vw;
+    }
+}
+@media (orientation: portrait) {
+
+    .title {
+        font-size: 6vw;
+    }
+    .title.roomTitle {
+        font-size:7vw;
+    }
+
+    .subTitle {
+        font-size: 4vw;
+    }
+
+    .subTitle.roomTitle {
+        font-size: 5vw;
+    }
+}
 body{
     margin:0;
     padding:0;
@@ -132,6 +157,7 @@ body{
 }
 .pageRooms {
     flex-direction:column;
+
 }
 
 .pageCreateRoom {
@@ -186,8 +212,11 @@ body{
     zoom:2;
 }
 .gameOptionsLabel {
-    font-size:2vw;
+    font-size:4vw;
+    text-align:center;
+    width:80%;
 }
+
 
 .button { /* used to be called introButton*/
 
@@ -221,7 +250,7 @@ body{
     }
 
     .verySmallButton { /*used to be called smallerIntroButton */
-        font-size: 2vw;
+        font-size: 2.5vw;
 
         width:25%;
         padding: 12px 20px;
@@ -244,9 +273,9 @@ body{
 
     }
     .verySmallButton { /*used to be called smallerIntroButton */
-        font-size: 2vw;
+        font-size: 3vw;
 
-        width:25%;
+        width:30%;
         padding: 12px 20px;
 
     }
@@ -269,6 +298,7 @@ body{
     box-sizing: border-box;
     text-align:center;
     border:1px solid black;
+    position:relative;
 
     /*border:1px solid black;*/
 
@@ -292,7 +322,7 @@ body{
 
     .playerList{
 
-        width:80vw;
+        max-width:80vw;
         height:30vh;
         height: calc(var(--vh, 1vh) * 30);
     }
@@ -306,7 +336,7 @@ body{
 @media (orientation: portrait) {
     .playerList{
 
-        width:80vw;
+        max-width:80vw;
         height:60vh;
         height: calc(var(--vh, 1vh) * 60);
     }
@@ -321,7 +351,30 @@ body{
 
 
 
-
+.modalContainer {
+    position:absolute;
+    top:0;
+    width:100%;
+    height:100%;
+    background-color:rgba(0,0,0,.3)
+}
+.actionsButtonContainer {
+    position:absolute;
+    width:15vw;
+    height:15vw;
+    bottom:0;
+    right:0;
+    overflow:hidden;
+}
+.actionsButton {
+    position:relative;
+    background-color:rgba(0,0,0,.5);
+    width:15vw;
+    height:15vw;
+    border-radius:5vw;
+    bottom:-5vw;
+    right:-5vw;
+}
 
 .unselectable {
     -webkit-user-select: none; /* Safari */
