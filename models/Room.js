@@ -1,5 +1,6 @@
 import SpyFallGame from './SpyFallGame';
 import PlayerList from './PlayerList'
+
 export default class Room extends PlayerList{
 
 	constructor(roomName, gameType, gameOptions, permanent){
@@ -7,7 +8,6 @@ export default class Room extends PlayerList{
 
         this.id = Room.makeId();
         this.name = (roomName === undefined) ? this.id : roomName;
-
 
         this.gameOptions = gameOptions;
 		this.stage = "lobby";//lobby, game
@@ -21,14 +21,17 @@ export default class Room extends PlayerList{
 	    //TODO: send notification message to all players
     }
     addPlayer(player,socket){
+	    if(this.players.length > 7){
+	        return;
+        }
 	    super.addPlayer(player,(r)=>{
 	        if(r.err){
 	            socket.emit("errorMessage",{"err":r.err});
             }
             else{
                 r.player.subscribeSockets(this.id);
-                if(this.players.length === 1){
-                    this.adminId = this.players[0].id;
+                if(this.players.length === 1 || this.realPlayers === 1){
+                    this.adminId = player.id;
                 }
                 this.forcePlayerSync();
             }
@@ -97,7 +100,6 @@ export default class Room extends PlayerList{
 
 
     getSafe(player){
-
 	    //assume when player is not passed its a player not in the room whos trying to get info
 	    return {
 	        "id":this.id,
@@ -178,5 +180,9 @@ function makeId()
     return text;
 }
 
-new Room("Room 1","SpyFall",{"playWithSpyFall":true},true);
-new Room("Room 2","SpyFall",{"playWithSpyFall":false},true);
+export let room1 = new Room("Room 1","SpyFall",{"playWithSpyFall":true},true);
+
+export let room2 = new Room("Room 2","SpyFall",{"playWithSpyFall":false},true);
+for(let i = 3; i < 50; i++){
+    new Room("Room " + i,"SpyFall",{"playWithSpyFall":true},true);
+}

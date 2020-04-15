@@ -36,7 +36,7 @@ export default function initializeSockets(server){
 		socket.on('joinRoom', function (data){
 
 			let room = Room.get(data.roomId);
-			if(room){
+			if(room && room.players.length < 8){
 				room.addPlayer(socket.player,socket);
 			}
 			else{
@@ -46,11 +46,8 @@ export default function initializeSockets(server){
 		});
 
 		socket.on('newRoom',function(data){
-
-			let room = new Room(escapeHtml(data.name), data.gameType, data.gameOptions);
-
+			let room = new Room(escapeHtml(data.name), data.gameType, data.gameOptions,false);
 			room.addPlayer(socket.player);
-
 		});
 
 		socket.on('leaveRoom',function(){

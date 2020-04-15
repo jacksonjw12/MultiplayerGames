@@ -83,7 +83,7 @@
 
 .lobby-player-list > li {
     text-align: left;
-    background: 1px solid #000;
+    border: 1px solid #000000;
     position:relative; /* Create a positioning context */
     margin:0 0 6px 2em; /* Give each list item a left margin to make room for the numbers */
     padding:4px 8px; /* Add some spacing around the content */
@@ -162,7 +162,7 @@ button {
 }
 .firstPlayer {
 	float:right;
-	font-size:15;
+	font-size:15px;
 	color:red;
 }
 .locationRefList {

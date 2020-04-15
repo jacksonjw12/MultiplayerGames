@@ -35,6 +35,8 @@ export default class SpyFallGame{
 
 		this.location = locations[Math.floor(Math.random()*locations.length)];
         this.scene = "default";//default, vote, results
+
+
         let spyFullChance = Math.random()*100;
 
         this.spyFullAllowed = this.room.gameOptions.playWithSpyFull;
@@ -54,10 +56,14 @@ export default class SpyFallGame{
 	createNewGame(){
 	    let spy = Math.floor(Math.random()*this.room.players.length);
 	    let roles = this.location.roles.map((r) =>({sort: Math.random(), value: r})).sort((a, b) => a.sort - b.sort);
-        for(let p = 0; p < this.room.players.length; p++){
-            this.playerData.push({"id":this.room.players[p].id,"name":this.room.players[p].name,"identity":(p === spy)?"spy":"innocent","role":(p === spy)?"":roles[p].value,"canNominate":true});
+        let roleIndex = 0;
+	    for(let p = 0; p < this.room.players.length; p++){
+            this.playerData.push({"id":this.room.players[p].id,"name":this.room.players[p].name,"identity":(p === spy)?"spy":"innocent","role":(p === spy)?"":roles[roleIndex].value,"canNominate":true});
             this.players.push({"id":this.room.players[p].id,"name":this.room.players[p].name})
-        }
+            if(p !== spy){
+                roleIndex++;
+            }
+	    }
     }
     createSpyFullGame(){
         for(let p = 0; p < this.room.players.length; p++){

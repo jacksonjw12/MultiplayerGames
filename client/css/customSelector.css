@@ -1,0 +1,73 @@
+
+.gameSelect {
+    position:relative;
+
+}
+.gameSelectButton {
+    min-width:30vw;
+    min-height:4vw;
+    border:1px solid #bbbbbb;
+    display:block;
+    justify-items:center;
+    vertical-align:center;
+    cursor:pointer;
+}
+.gameSelectButton:hover {
+    background-color:#f9f9f9;
+}
+
+
+.gameSelectButtonText {
+    flex-grow:1;
+    text-align:center;
+    font-size:2vw;
+    width:80%;
+}
+.gameSelectButtonIconContainer {
+    position:absolute;
+    width:15%;
+    /*min-height:4vw;*/
+    height:100%;
+    right:0;
+    top:0;
+    padding-top:2vw;
+
+}
+.arrow{
+    transition: all .5s cubic-bezier(0.83, 0, 0.17, 1);
+    border: solid black;
+    border-width: 0 3px 3px 0;
+    display: inline-block;
+    padding: .8vw;
+}
+i.down {
+    transform: rotate(45deg);
+    -webkit-transform: rotate(45deg);
+}
+i.up {
+    transform: rotate(-135deg);
+    -webkit-transform: rotate(-135deg);
+}
+.gameSelectOption {
+    min-width:30vw;
+    min-height:4vw;
+    border:1px solid #bbbbbb;
+    display:flex;
+    background-color:white;
+    text-align:center;
+    cursor:pointer;
+    justify-content:center;
+}
+.gameSelectOption:hover {
+    background-color:#f9f9f9;
+}
+
+
+.hideSelections>.gameSelectionList{
+    display:none;
+}
+
+.gameSelectionList {
+    position:absolute;
+}
+

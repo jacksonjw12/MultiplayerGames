@@ -1,17 +1,18 @@
 let maxNameLength = 16;
 import {io} from '../requestHandlers';
-import Room from './Room';
+import Room,{room1,room2} from './Room';
 export default class Player{
 
-	constructor() {
+	constructor(dummy) {
         this.id = Player.makePlayerId();
         this.authCode = makeId();
         this.sockets = [];
-        this.name = this.id;
+        this.dummy = (dummy !== undefined)?dummy:false;
+        this.name =  (!this.dummy)?this.id:generateName(16);
         Player.registerPlayer(this);
-
         this.inRoom = false;
         this.roomId = undefined;
+
     }
 
     subscribeSockets(id){
@@ -39,6 +40,9 @@ export default class Player{
     }
 
     forcePlayerSync(room){
+	    if(this.dummy){
+	        return;
+        }
 	    if(room === undefined && this.inRoom){
 	        room = Room.get(this.roomId);
         }
@@ -130,6 +134,11 @@ export default class Player{
 
 };
 Player.players = [];
+
+for(let i = 0; i < 7; i++){
+    room1.addPlayer(new Player(true));
+}
+
 function makeId()
 {
     let text = "";
@@ -139,4 +148,29 @@ function makeId()
         text += possible.charAt(Math.floor(Math.random() * possible.length));
 
     return text;
+}
+
+function generateName(length){
+    let text = "";
+    let possible = "abcdefghijklmnopqrstuvwxyz";
+    let minWordLength = 3;
+    let maxWordLength = 8;
+    let done = false;
+    while(!done){
+        let wordLength = Math.random()*(maxWordLength-minWordLength)+minWordLength;
+        if(text.length + wordLength > length){
+            done = true;
+            return text;
+        }
+        for(let i = 0; i < wordLength; i++ ){
+            let c = possible.charAt(Math.floor(Math.random() * possible.length));
+            if(i === 0 && ( (text.length === 0 && Math.random() > .3) || (Math.random() > .7))){
+                c = c.toUpperCase()
+            }
+            text += c;
+        }
+        if(text.length < length){
+            text+=" ";
+        }
+    }
 }

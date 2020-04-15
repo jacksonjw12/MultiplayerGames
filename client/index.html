@@ -3,86 +3,134 @@
 <head>
 	<title>JacksonJW Games</title>
 	<meta charset="UTF-8">
-	<link rel="stylesheet" type="text/css" href="index.css">
+	<link rel="stylesheet" type="text/css" href="css/index.css">
+	<link rel="stylesheet" type="text/css" href="css/fixedHeaderTable.css">
+	<link rel="stylesheet" type="text/css" href="css/customSelector.css">
+
 	<script src="/socket.io/socket.io.js"></script><!--socket io client-->
-	<script src="games/Lobby.js" ></script>
+	<script src="js/Lobby.js" ></script>
+	<script src="js/CreateRoom.js" ></script>
+
 	<script src="games/SpyFall.js" ></script>
+	<script src="js/DebugWindowController.js" ></script>
+	<script src="js/DebugGameController.js" ></script>
+
+
 </head>
 
 <body>
-
-
-
-
-
-<div id="intro" class="fullSize" >
-	<!-- <form action="javascript:connect()">
-		<input type="text" id="playerName" placeholder="Name"></input>
-		<input type="text" id="roomName" placeholder="RoomName"></input>
-		<input type="submit" id="namesSubmit"></input>
-	</form> -->
-
-
-	<div id="page_welcome" >
-		<h1> Welcome to JacksonJW Games </h1>
+<div class="pageContainer">
+	<div class="pageBorderContainer">
+		<div id="pageLeftBorder" class="pageBorder"></div>
 	</div>
 
-	<div id="page_welcomeWithName" style="display:none">
-		<h1> Welcome to JacksonJW Games </h1>
-		<input type="text" id="playerNameInput" class="bigTextInput" placeholder="Name"><br>
-		<button class="introButton" id="nameSubmitButton" onclick="changeName()">Enter</button>
-	</div>
-
-	<div id="page_rooms" style="display:none">
-		<!-- <input type="text" id="roomName" class="medTextInput" placeholder="Room ID"></input> -->
-		<button class="smallerIntroButton" id="joinButton" onclick="createNewRoom()">New Room</button><br>
-
-		<div id="rooms"></div>
-	</div>
-
-
-	<div id="page_createRoom" style="display:none">
-		<input type="text" id="roomNameInput" class="bigTextInput" placeholder="Room Name"><br><br>
-
-		<label for="gameSelection">Choose a Game:</label>
-		<select id="gameSelection" onChange="handleGameSelect(this)">
-			<option value="SpyFall">SpyFall</option>
-			<!--<option value="MatchIt">Match It</option>-->
-		</select>
-		<br><br>
-		<div id="gamesSelectionOptions">
+	<div class="pageContent">
+		<!-- Auth and Socket loading page-->
+		<div id="page_welcome" class="page pageWelcome">
+			<div class="verticalPagePadding"></div>
+			<h1 class="courier title">Welcome to JacksonJW Games</h1>
+			<p class="courier">Waiting for authorization with game server...</p>
 		</div>
-		<script>document.getElementById("gamesSelectionOptions").innerHTML = SpyFall.getGameOptionsHTML();</script>
-		<button class="smallerIntroButton" id="newRoom" onclick="newRoom()">Create New Room</button><br><br>
-		<button class="smallerIntroButton" id="hideCreateNewRoom" onclick="hideCreateNewRoom()">Go Back</button><br>
+
+		<!-- Landing Page-->
+		<div id="page_welcomeWithName" class="page pageWelcomeWithName">
+			<div class="verticalPagePadding"></div>
+			<h1 class="courier title">Welcome to JacksonJW Games</h1>
+			<input type="text" id="playerNameInput" class="bigTextInput" placeholder="Enter your name"><br>
+			<div class="button largeButton" id="nameSubmitButton" onclick="changeName()">Enter</div>
+		</div>
+
+		<!-- Rooms List-->
+		<div id="page_rooms" class="page pageRooms" style="display:none">
+			<div class="lessVerticalPagePadding"></div>
+
+			<div class="button smallButton" id="joinButton" onclick="createNewRoom()">Create New Room</div><br>
+
+			<div id="rooms" class="tableContainer">
+
+					<div class="tableHeader">
+						<div class="tableHeaderElement"><div class="tableBodyElementContent">Room Name</div></div>
+						<div class="tableHeaderElement"><div class="tableBodyElementContent"># of Players</div></div>
+						<div class="tableHeaderElement"><div class="tableBodyElementContent">Game</div></div>
+						<div class="tableHeaderElement"><div class="tableBodyElementContent">Status</div></div>
+						<div class="tableHeaderElement"><div class="tableBodyElementContent">Join Button</div></div>
+					</div>
+					<div class="tableBody" id="roomTableBody">
+
+					</div>
+
+			</div>
+		</div>
+
+		<!-- Create Room-->
+		<div id="page_createRoom" class="page pageCreateRoom" style="display:none" onclick="globals.createRoom.closeGameSelectMenu()">
+			<div class="flexColumn">
+				<input type="text" id="roomNameInput" class="bigTextInput" placeholder="Enter a Room Name..."><br><br>
+
+				<div id="gameSelection" class="gameSelect hideSelections" onclick="event.stopPropagation();globals.createRoom.handleGameSelectMenu()">
+
+					<div class="gameSelectButton unselectable"><div class="gameSelectButtonText"><h3 id="gameSelectName">Choose a Game:</h3></div><div class="gameSelectButtonIconContainer"><i id="gameSelectArrow" class="arrow down"></i></div></div>
+					<div class="gameSelectionList">
+						<div class="gameSelectOption" id="selectSpyFall" onclick="globals.createRoom.handleGameSelect(this)"><p>SpyFall</p></div>
+						<div class="gameSelectOption" id="selectMatchIt" onclick="globals.createRoom.handleGameSelect(this)"><p>MatchIt</p></div>
+					</div>
+				</div>
+				<br><br>
+				<div id="gamesSelectionOptions" class="gameSelectOptions">
+				</div>
+				<div class="button smallButton" id="newRoom" onclick="globals.createRoom.newRoom()">Create New Room</div><br>
+	<!--			<div class="verticalPagePadding"></div>-->
+			</div>
+			<div class="verticalPagePadding"></div>
+
+			<div class="button verySmallButton" id="hideCreateNewRoom" onclick="hideCreateNewRoom()">Go Back</div><br>
+
+		</div>
+
+		<!-- Lobby and Game-->
+		<div id="room_pages" class="page pageLobby" style="display:none">
+
+			<div class="pageBorderContainer">
+				<div id="roomLeftBorder" class="pageBorder"></div>
+			</div>
+
+			<!--Lobby-->
+			<div id="page_lobby" class="flexColumn spaceEvenly fullHeight">
+				<div class="flexColumn">
+					<h1 id="roomTitle" class="title roomTitle">Room: test</h1>
+					<h3 class="subTitle roomTitle"><u>Players</u></h3>
+					<div id="menuPlayers" class="playerList">
+						<!--Populated by Lobby.update() -->
+					</div>
+				</div>
+				<div class="flexColumn fullSize spaceBetween">
+					<div id="startGame" class="button smallButton" onclick="startGame()" >Start Game</div>
+					<div id="leaveRoom" class="button verySmallButton" onclick="leaveRoom()">Leave The Room</div>
+				</div>
+			</div>
+			<!--Game-->
+			<div id="page_game" class="flexColumn spaceEvenly fullHeight">
+				<h3 class="title roomTitle">No Game Loaded Yet!</h3>
+				<!--Game Objects will populate this when loaded-->
+			</div>
+
+			<div class="pageBorderContainer">
+				<div id="roomRightBorder" class="pageBorder"></div>
+			</div>
+
+		</div>
 	</div>
 
-
-
-
-	<div id="page_lobby" style="display:none">
-		<!--Player loading wait menu-->
-
-
-
+	<div class="pageBorderContainer">
+		<div id="pageRightBorder" class="pageBorder"></div>
 	</div>
-
-		<!--Actual Game-->
-	<div id="page_game" class="fullSize game" style="display:none">
-
-
-	</div>
-
-
-
-
-
 
 </div>
 
 
 </body>
-<script src="main.js" ></script>
+
+<script src="js/main.js" ></script>
 </html>
 
 

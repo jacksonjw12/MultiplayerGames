@@ -1,0 +1,162 @@
+
+/* define height and width of scrollable area. Add 16px to width for scrollbar          */
+div.tableContainer {
+	clear: both;
+	border: 1px solid black;
+    /*border-right:none;*/
+	height: 60vh;
+	width: 80vw;
+    font-size:1.8vw;
+    overflow:hidden;
+}
+/*@media (orientation: landscape) {*/
+/*    div.tableContainer {*/
+/*        font-size:1.8vw;*/
+/*    }*/
+
+/*}*/
+/*@media (orientation: portrait) {*/
+/*    div.tableContainer {*/
+/*        font-size:1.8vw*/
+/*    }*/
+/*}*/
+
+
+div.tableHeaderElement {
+    /*padding:6px 4px;*/
+    text-align:center;
+    border-right: 1px solid black;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+
+}
+div.tableBody{
+	overflow-y:scroll;
+    overflow-x:hidden;
+	border-bottom: none;
+	border-left: none;
+    border-top: 1px solid black;
+    height: 52vh;
+
+	/*border-right: 1px solid #CCC;*/
+	/*border-top: 1px solid #DDD;*/
+
+
+}
+@media (orientation: landscape) {
+    div.tableRow {
+        display:flex;
+        flex-direction:row;
+        width:100%;
+        min-height:10vh;
+
+    }
+    div.tableHeader {
+        display:flex;
+        flex-direction:row;
+        /*width: 60vw;*/
+        min-height:8vh;
+        background-color: darkcyan;
+        color:white;
+    }
+}
+
+@media (orientation: portrait) {
+    div.tableRow {
+        display:flex;
+        flex-direction:row;
+        width:100%;
+        min-height:5vh;
+
+    }
+    div.tableHeader {
+        display:flex;
+        flex-direction:row;
+        /*width: 60vw;*/
+        min-height:6vh;
+        background-color: darkcyan;
+        color:white;
+    }
+}
+
+
+div.tableRow:nth-child(odd)  {
+    background: #EEE;
+}
+div.tableBodyElement {
+    border-right: 1px solid black;
+    border-bottom:1px solid black;
+    text-align:center;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+
+}
+div.tableBodyElementContent {
+    width:100%;
+    flex-grow:1;
+}
+div.tableButton:hover {
+    background: #aaa;
+    color:#fff;
+    cursor:pointer;
+
+}
+
+
+
+
+
+html>body div.tableHeader>div {
+	max-width: 35%;
+    min-width: 35%;
+}
+
+html>body div.tableHeader>div + div {
+	max-width: 10%;
+    min-width: 10%;
+}
+
+html>body div.tableHeader>div + div + div{
+	max-width: 20%;
+    min-width: 20%;
+}
+html>body div.tableHeader>div + div + div + div{
+	max-width: 10%;
+    min-width: 10%;
+}
+html>body div.tableHeader>div + div + div + div + div{
+	max-width: 25%;
+    min-width: 25%;
+    border-right:none;
+}
+
+/* define width of TD elements: 1st, 2nd, and 3rd respectively.          */
+/* All other non-IE browsers.                                            */
+/* http://www.w3.org/TR/REC-CSS2/selector.html#adjacent-selectors        */
+html>body div.tableRow>div {
+	max-width: 35%;
+    min-width: 35%;
+}
+
+html>body div.tableRow>div + div {
+	max-width: 10%;
+    min-width: 10%;
+}
+
+html>body div.tableRow>div + div + div{
+	max-width: 20%;
+    min-width: 20%;
+}
+html>body div.tableRow>div + div + div + div{
+	max-width: 10%;
+    min-width: 10%;
+}
+html>body div.tableRow>div + div + div + div + div{
+	max-width: 25%;
+    min-width: 25%;
+    border-right:none;
+}
+
+

@@ -8,6 +8,15 @@ class SpyFall {
         this.nominating = false;
         this.guessingLocation = false;
         this.allowedToVote = false;
+        this.debugGameController = new DebugGameController(
+            [
+                {"name":"default","id":"scene_default"},
+                {"name":"nominate","id":"scene_nominate"},
+                {"name":"guessLocation","id":"scene_guessLocation"},
+                {"name":"vote","id":"scene_vote"},
+                {"name":"results","id":"scene_results"}
+
+        ],this);
     }
     update(game,room){
         this.game = game;
@@ -64,8 +73,6 @@ class SpyFall {
             for(let p = 0; p < game.results.length; p++){
                 document.getElementById("resultsPlayers").innerHTML+=getResultsPlayerItem(game.results[p]);
             }
-
-
 
 
         }
@@ -172,7 +179,7 @@ class SpyFall {
         return {"playWithSpyFull":playWithSpyFull}
     }
     static getGameOptionsHTML(){
-        return`<input type="checkbox" id="playWithSpyFull" name="playWithSpyFull" checked><label for="playWithSpyFull">Play with a chance of all players being spies(SpyFull)?</label></br></br>`
+        return`<input type="checkbox" id="playWithSpyFull" class="gameOptionsCheckbox" name="playWithSpyFull" checked><label for="playWithSpyFull" class="gameOptionsLabel">Play with a chance of all players being spies(SpyFull)?</label></br></br>`
     }
 
 }
@@ -201,8 +208,8 @@ function getNominatePlayerItem(player,playerId){
 }
 
 let spyFallHTML =
-    `<div id="sceneContainer" class="fullSize game">
-        <div id="scene_default" class="fullSize game" style="">
+    `<div id="sceneContainer" class="flexColumn fullHeight fullWidth">
+        <div id="scene_default" class="flexColumn fullHeight fullWidth" style="">
 			<div id="locationText" class="locationClass">
 				<a class="locationDisplayToggle" onclick="SpyFall.toggleLocationInfo()"><i id="locationToggleText">hide</i></a>
 				<div id="sensitiveInfo">
@@ -231,7 +238,7 @@ let spyFallHTML =
 
 			<h3><u> Location List</u></h3>
 
-			<ul id="locationRefList" class="locationRefList">
+			<ul id="locationRefList" class="locationRefList" style="display:none;">
 				<li class="locationReference" onclick="strikeRef(this)">airplane</li>
 				<li class="locationReference" onclick="strikeRef(this)">bank</li>
 				<li class="locationReference" onclick="strikeRef(this)">beach</li>
@@ -247,7 +254,7 @@ let spyFallHTML =
 				<li class="locationReference" onclick="strikeRef(this)">military base</li>
 				<li class="locationReference" onclick="strikeRef(this)">movie studio</li>
 			</ul>
-			<ul id="locationRefList2" class="locationRefList">
+			<ul id="locationRefList2" class="locationRefList" style="display:none;">
 				<li class="locationReference" onclick="strikeRef(this)">ocean liner</li>
 				<li class="locationReference" onclick="strikeRef(this)">passenger train</li>
 				<li class="locationReference" onclick="strikeRef(this)">pirate ship</li>
@@ -264,7 +271,7 @@ let spyFallHTML =
 				<li class="locationReference" onclick="strikeRef(this)">world war ii squad</li>
 			</ul>
 		</div>
-		<div id="scene_nominate" class="fullSize game" style="display:none;">
+		<div id="scene_nominate" class="flexColumn fullHeight fullWidth" style="display:none;">
             <h2>Nominate a player as the spy, and commence a group vote</h2>
             <h3>Each player can only do this once per game, once they are all used up, the spy wins</h3>
             <h3>The vote must be unanimous(excluding the player who is nominated)</h3>
@@ -274,7 +281,7 @@ let spyFallHTML =
                 </ul>
             </div>
         </div>
-        <div id="scene_guessLocation" class="fullSize game" style="display:none;">
+        <div id="scene_guessLocation" class="flexColumn fullHeight fullWidth" style="display:none;">
             <h2>Guess the Location</h2>
             <h3>Wrong guess and you lose</h3>
             
@@ -313,7 +320,7 @@ let spyFallHTML =
 			</ul>
             
         </div>
-        <div id="scene_vote" class="fullSize game" style="display:none;">
+        <div id="scene_vote" class="flexColumn fullHeight fullWidth" style="display:none;">
             <h1 id="vote_playerName">Is Player a spy?</h1>
             <div id="vote_buttons" style="display:none;">
                 <button id="voteGuilty" class="smallerIntroButton" onclick="globals.game.vote(true)">Yes</button>
@@ -323,7 +330,7 @@ let spyFallHTML =
 			<button id="vote_leaveRoom" class="smallerIntroButton" onclick="leaveRoom()">Leave The Room</button>
 
         </div>
-        <div id="scene_results" class="fullSize game" style="">
+        <div id="scene_results" class="flexColumn fullHeight fullWidth" style="display:none;">
             <h1>Results Screen</h1>
             <h3 id="gameOverReason"></h3>
             <ul id="resultsPlayers" class="lobby-player-list">

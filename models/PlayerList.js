@@ -7,6 +7,7 @@ export default class PlayerList {
 
         this.players = [];
         this.playersSafe = [];
+        this.realPlayers = 0;
     }
 
     addPlayer(player, cb){
@@ -23,7 +24,9 @@ export default class PlayerList {
         }
         this.players.push(player);
         this.playersSafe.push({"id":player.id,"name":player.name});
-
+        if(!player.dummy){
+            this.realPlayers++;
+        }
         cb({"player":player});
     }
     removePlayer(player,cb){
@@ -31,6 +34,9 @@ export default class PlayerList {
 	        if(this.players[p].id === player.id){
 	            let player = this.players.splice(p,1);
 	            this.playersSafe.splice(p,1);
+	            if(!player.dummy){
+                    this.realPlayers--;
+                }
 	            cb({"player":player});
 	            return;
             }
