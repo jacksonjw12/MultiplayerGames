@@ -43,9 +43,9 @@ function receiveRooms(data){
 		let room = data.rooms[r];
 
 		htmlContents += '<div class="tableRow">';
-		htmlContents += `<div class="tableBodyElement"><div class="tableBodyElementContent" ><u style="color:#${room.id}">${room.name}</u></div></div>`;
+		htmlContents += `<div class="tableBodyElement"><div class="tableBodyElementContent roomName" ><u style="color:#${room.id}">${room.name}</u></div></div>`;
 		htmlContents += `<div class="tableBodyElement"><div class="tableBodyElementContent"> ${room.numPlayers}</div></div>`;
-		htmlContents += `<div class="tableBodyElement"><div class="tableBodyElementContent">${room.gameType}</div></div>`;
+		htmlContents += `<div class="tableBodyElement"><div class="tableBodyElementContent gameType">${room.gameType}</div></div>`;
 		htmlContents += `<div class="tableBodyElement"><div class="tableBodyElementContent">${room.stage}</div></div>`;
 		htmlContents += `<div class="tableBodyElement tableButton" onClick="connectRoom('${room.id}')"><div class="tableBodyElementContent" >Join</div></div>`;
 		htmlContents += '</div>';

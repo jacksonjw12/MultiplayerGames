@@ -231,9 +231,6 @@ body{
 }
 @media (orientation: portrait) {
 
-    .bigTextInput {
-        font-size:40px;
-    }
     .largeButton {
         font-size: 6vw;
         padding: 10px 10px 10px 10px;

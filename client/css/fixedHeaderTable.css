@@ -6,10 +6,20 @@ div.tableContainer {
     /*border-right:none;*/
 	height: 60vh;
     height: calc(var(--vh, 1vh) * 60);
-	width: 80vw;
+	width: 96vw;
     font-size:1.8vw;
     overflow:hidden;
 }
+.smallerFont {
+    font-size:1.8vw;
+}
+.roomName {
+    font-size:3vw;
+}
+/*.gameType {*/
+/*    font-size:2.5vw;*/
+/*}*/
+
 /*@media (orientation: landscape) {*/
 /*    div.tableContainer {*/
 /*        font-size:1.8vw;*/
@@ -53,6 +63,7 @@ div.tableBody{
         width:100%;
         min-height:10vh;
         min-height: calc(var(--vh, 1vh) * 10);
+        font-size:2.5vw;
 
     }
     div.tableHeader {
@@ -63,6 +74,8 @@ div.tableBody{
         min-height: calc(var(--vh, 1vh) * 8);
         background-color: darkcyan;
         color:white;
+        font-size:2.5vw;
+
     }
 }
 
@@ -73,15 +86,18 @@ div.tableBody{
         width:100%;
         min-height:5vh;
         min-height: calc(var(--vh, 1vh) * 5);
+
+        font-size:2.5vw;
     }
     div.tableHeader {
         display:flex;
         flex-direction:row;
         /*width: 60vw;*/
-        min-height:6vh;
-        min-height: calc(var(--vh, 1vh) * 6);
+        min-height:8vh;
+        min-height: calc(var(--vh, 1vh) * 8);
         background-color: darkcyan;
         color:white;
+        font-size:2.5vw;
     }
 }
 
