@@ -280,7 +280,7 @@ export default class SpyFallGame{
         }
         return {
 	        ...data,
-            "playerData":{"id":id,"identity":"spectator","role":"","canNominate":false},
+            "playerData":{"id":player.id,"identity":"spectator","role":"","canNominate":false},
             "location":""
 	    }
 
