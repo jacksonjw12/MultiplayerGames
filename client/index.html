@@ -33,8 +33,8 @@
 
 </head>
 
-<body>
-<div class="pageContainer fullHeight">
+<body class="fullHeight">
+<div class="pageContainer fullHeight" >
 	<div class="pageBorderContainer">
 		<div id="pageLeftBorder" class="pageBorder fullHeight"></div>
 	</div>
@@ -50,14 +50,15 @@
 		<!-- Landing Page-->
 		<div id="page_welcomeWithName" class="page pageWelcomeWithName" style="display:none;">
 			<div class="verticalPagePadding"></div>
-			<h1 class="courier title">Welcome to JacksonJW Games</h1>
+			<h1 id="welcomeTitle" class="courier title">Welcome to JacksonJW Games</h1>
 			<input type="text" id="playerNameInput" class="bigTextInput" placeholder="Enter your name"><br>
 			<div class="button largeButton" id="nameSubmitButton" onclick="changeName()">Enter</div>
 		</div>
 
 		<!-- Rooms List-->
 		<div id="page_rooms" class="page pageRooms fullHeight flexColumn spaceBetween" style="display:none">
-			<div class="lessVerticalPagePadding"></div>
+
+			<h1  class="courier subTitle">JacksonJW Games</h1>
 
 			<div class="button smallButton" id="joinButton" onclick="createNewRoom()">Create New Room</div><br>
 
@@ -79,7 +80,7 @@
 		<!-- Create Room-->
 		<div id="page_createRoom" class="page pageCreateRoom fullHeight" style="display:none" onclick="globals.createRoom.closeGameSelectMenu()">
 			<div class="flexColumn fullHeight spaceAround">
-				<input type="text" id="roomNameInput" class="bigTextInput" placeholder="Enter a Room Name..."><br><br>
+				<input type="text" id="roomNameInput" class="bigTextInput" placeholder="Enter a Room Name...">
 
 				<div id="gameSelection" class="gameSelect hideSelections" onclick="event.stopPropagation();globals.createRoom.handleGameSelectMenu()">
 
@@ -89,14 +90,15 @@
 						<div class="gameSelectOption" id="selectMatchIt" onclick="globals.createRoom.handleGameSelect(this)"><p>MatchIt</p></div>
 					</div>
 				</div>
-				<br><br>
+
 				<div id="gamesSelectionOptions" class="gameSelectOptions flexColumn">
 				</div>
-				<div class="button smallButton" id="newRoom" onclick="globals.createRoom.newRoom()">Create New Room</div><br>
+				<div class="button smallButton" id="newRoom" onclick="globals.createRoom.newRoom()">Create New Room</div>
+				<div class="button verySmallButton" id="hideCreateNewRoom" onclick="hideCreateNewRoom()">Go Back</div>
+
 			</div>
 <!--			<div class="verticalPagePadding"></div>-->
 
-			<div class="button smallButton" id="hideCreateNewRoom" onclick="hideCreateNewRoom()">Go Back</div><br>
 
 		</div>
 
@@ -115,11 +117,8 @@
 					<div id="menuPlayers" class="playerList">
 						<!--Populated by Lobby.update() -->
 					</div>
-<!--				</div>-->
-<!--				<div class="flexColumn fullSize spaceBetween">-->
 					<div id="startGame" class="button smallButton" onclick="startGame()" >Start Game</div>
 					<div id="leaveRoom" class="button verySmallButton" onclick="leaveRoom()">Leave The Room</div>
-<!--				</div>-->
 			</div>
 			<!--Game-->
 			<div id="page_game" class="flexColumn spaceEvenly fullHeight">
@@ -151,7 +150,16 @@
 <!--	</div>-->
 
 </body>
-
+<script>
+	let lastScrollPos = 0;
+	window.addEventListener('scroll', function(e){
+		// window.scrollY = 0;
+		// if(window.scrollY == lastScrollPos && lastScrollPos !== 0){
+		//
+		// }
+		document.getElementById("welcomeTitle").innerHTML = (window.scrollY);
+	}, true);
+</script>
 <script src="js/main.js" ></script>
 </html>
 

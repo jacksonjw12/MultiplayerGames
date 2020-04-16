@@ -3,10 +3,9 @@
 div.tableContainer {
 	clear: both;
 
-    border:none;
-    border-top:1px solid black;
+    /*max-height: calc(var(--vh, 1vh) * 60);*/
 
-	width: 96vw;
+	width: 94vw;
     font-size:2vw;
     overflow:hidden;
 }
@@ -33,15 +32,18 @@ div.tableBody{
 	border-bottom: none;
 	border-left: none;
     border-top: 1px solid black;
-    height: 72vh;
-    height: calc(var(--vh, 1vh) * 72);
 
-	/*border-right: 1px solid #CCC;*/
-	/*border-top: 1px solid #DDD;*/
+
+    border:1px solid black;
+    border-bottom:none;
+
 
 
 }
 @media (orientation: landscape) {
+    div.tableBody {
+        max-height: calc(var(--vh, 1vh) * 50);
+    }
     div.tableRow {
         display:flex;
         flex-direction:row;
@@ -49,6 +51,7 @@ div.tableBody{
         min-height:10vh;
         min-height: calc(var(--vh, 1vh) * 10);
         font-size:2.5vw;
+        /*border:1px solid black;*/
 
     }
     div.tableHeader {
@@ -60,19 +63,27 @@ div.tableBody{
         background-color: darkcyan;
         color:white;
         font-size:2.5vw;
+        border:1px solid black;
+        border-bottom:none;
+
 
     }
 }
 
 @media (orientation: portrait) {
+    div.tableBody {
+        max-height: calc(var(--vh, 1vh) * 70);
+    }
     div.tableRow {
         display:flex;
         flex-direction:row;
         width:100%;
         min-height:5vh;
         min-height: calc(var(--vh, 1vh) * 5);
-
         font-size:3.0vw;
+
+
+
     }
     div.tableHeader {
         display:flex;
@@ -83,6 +94,9 @@ div.tableBody{
         background-color: darkcyan;
         color:white;
         font-size:3.5vw;
+
+        border:1px solid black;
+        border-bottom:none;
     }
 }
 

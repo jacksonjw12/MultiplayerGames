@@ -89,7 +89,9 @@ body{
     padding:0;
     font-family:"Courier New", serif;
     font-weight: lighter;
-    overflow:hidden;
+    /*background-color:red;*/
+    /*height:100%;*/
+    /*overflow:hidden;*/
 }
 .fullSize {
 	width:100%;
@@ -204,14 +206,7 @@ body{
     box-sizing: border-box;
     border:1px solid #bbbbbb;
 }
-.gameOptionsCheckbox {
-    zoom:2;
-}
-.gameOptionsLabel {
-    font-size:4vw;
-    text-align:center;
-    width:80%;
-}
+
 
 
 .button { /* used to be called introButton*/
@@ -240,8 +235,7 @@ body{
     .smallButton { /*used to be called smallerIntroButton */
         font-size: 4vw;
         width:40%;
-        padding: 12px 20px;
-
+        padding: .6vw .5vw;
 
     }
 
@@ -249,8 +243,17 @@ body{
         font-size: 2.5vw;
 
         width:25%;
-        padding: 12px 20px;
+        padding: .6vw .5vw;
 
+    }
+    .gameOptionsCheckbox {
+        zoom:2;
+    }
+
+    .gameOptionsLabel {
+        font-size:2vw;
+        text-align:center;
+        width:80%;
     }
 
 }
@@ -275,6 +278,15 @@ body{
         padding: 12px 20px;
 
     }
+    .gameOptionsCheckbox {
+        /*zoom:2;*/
+    }
+
+    .gameOptionsLabel {
+        font-size:4vw;
+        text-align:center;
+        width:80%;
+    }
 
 }
 
@@ -285,6 +297,7 @@ body{
     flex-wrap: wrap;
     align-content: flex-start;
     justify-content:flex-start;
+
     /*border:1px solid #bbbbbb;*/
 }
 
@@ -319,8 +332,8 @@ body{
     .playerList{
 
         max-width:80vw;
-        height:30vh;
-        height: calc(var(--vh, 1vh) * 30);
+        min-height:30vh;
+        min-height: calc(var(--vh, 1vh) * 30);
     }
     .player-name {
         font-size:2vw;
@@ -333,8 +346,8 @@ body{
     .playerList{
 
         max-width:80vw;
-        height:60vh;
-        height: calc(var(--vh, 1vh) * 60);
+        min-height:60vh;
+        min-height: calc(var(--vh, 1vh) * 60);
     }
     .player-name {
         font-size:4vmin;
