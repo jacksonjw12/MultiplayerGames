@@ -1,5 +1,5 @@
 let maxNameLength = 16;
-import {io} from '../requestHandlers';
+import {io,debug} from '../requestHandlers';
 import Room,{room1,room2} from './Room';
 export default class Player{
 
@@ -7,6 +7,7 @@ export default class Player{
         this.id = Player.makePlayerId();
         this.authCode = makeId();
         this.sockets = [];
+        this.disconnected = false;
         this.dummy = (dummy !== undefined)?dummy:false;
         this.name =  (!this.dummy)?this.id:generateName(16);
         Player.registerPlayer(this);
@@ -14,7 +15,11 @@ export default class Player{
         this.roomId = undefined;
 
     }
-
+    sendMessage(msg, options){
+	    if(!this.dummy){
+	        io.to('player_'+this.id).emit('infoMessage', {"message":msg,"options":options});
+        }
+    }
     subscribeSockets(id){
 	    if(this.inRoom){
 	        this.unsubscribeSockets()
@@ -48,6 +53,9 @@ export default class Player{
         }
 
         let syncData = {"inRoom":this.inRoom,"room":this.inRoom?room.getSafe(this):undefined,"name":this.name};
+        if(debug){
+            console.log("forcing player sync")
+        }
 
 	    io.to('player_'+this.id).emit('playerSync', syncData);
     }
@@ -68,6 +76,10 @@ export default class Player{
     }
 	registerSocket(socket){
 	    clearTimeout(this.timeToKick);
+	    if(this.disconnected){
+	        this.disconnected = false;
+            // Room.get(this.roomId).forcePlayerSync(this);
+        }
 	    this.sockets.push(socket);
 	    if(this.inRoom){
 	        socket.join(this.roomId);
@@ -76,16 +88,21 @@ export default class Player{
     }
 
     disconnectSocket(socket){
+	    if(debug){
+	        console.log(`Disconnecting a socket from a Player, now has ${this.sockets.length-1} sockets`)
+        }
         for(let s = 0; s< this.sockets.length; s++){
             if(this.sockets[s].id === socket.id){
                 this.sockets.splice(s,1);
                 if(this.sockets.length === 0){
                     this.timeToKick = setTimeout(()=>{
                         if(this.inRoom && this.sockets.length === 0){
-                            Room.get(this.roomId).removePlayer(this);
+                            this.disconnected = true;
+                            // Room.get(this.roomId).forcePlayerSync(this);
+                            // Room.get(this.roomId).setPlayerDisconnected(this);
                             // this.leaveRoom(this.room)
                         }
-                        },10000)
+                        },20000)
                 }
                 return;
             }
@@ -135,8 +152,12 @@ export default class Player{
 };
 Player.players = [];
 
-for(let i = 0; i < 7; i++){
+for(let i = 0; i <6; i++){
     room1.addPlayer(new Player(true));
+}
+
+for(let i = 0; i <6; i++){
+    room2.addPlayer(new Player(true));
 }
 
 function makeId()

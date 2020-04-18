@@ -2,19 +2,18 @@
 /* define height and width of scrollable area. Add 16px to width for scrollbar          */
 div.tableContainer {
 	clear: both;
-
+    display:flex;
+    flex-direction:column;
     /*max-height: calc(var(--vh, 1vh) * 60);*/
 
 	width: 94vw;
-    font-size:2vw;
-    overflow:hidden;
+    overflow-y:hidden;
+    overflow-x:hidden;
 }
-.smallerFont {
-    font-size:3vw;
-}
-.roomName {
-    font-size:3.5vw;
-}
+
+/*.roomName {*/
+/*    font-size:3.5vw;*/
+/*}*/
 
 
 div.tableHeaderElement {
@@ -27,30 +26,38 @@ div.tableHeaderElement {
 
 }
 div.tableBody{
-	overflow-y:scroll;
+    flex-direction:column;
+	overflow-y:auto;
     overflow-x:hidden;
-	border-bottom: none;
-	border-left: none;
-    border-top: 1px solid black;
+    /*background-color:red;*/
+    /*box-sizing:border-box;*/
+    /*border:1px solid black;*/
+    /*border-bottom:1px solid black;*/
 
-
-    border:1px solid black;
-    border-bottom:none;
-
-
+}
+div.tableRow {
+    display:flex;
+    flex-direction:row;
+    width:100%;
+    box-sizing:border-box;
+    border-left:1px solid black;
+    border-right:1px solid black;
+    border-bottom:1px solid black;
 
 }
 @media (orientation: landscape) {
+    div.tableContainer {
+        height:calc(var(--vh, 1vh) * 72);
+    }
+
     div.tableBody {
-        max-height: calc(var(--vh, 1vh) * 50);
+        height: calc(var(--vh, 1vh) * 50);
+        overflow-y:scroll;
     }
     div.tableRow {
-        display:flex;
-        flex-direction:row;
-        width:100%;
-        min-height:10vh;
-        min-height: calc(var(--vh, 1vh) * 10);
-        font-size:2.5vw;
+        height:10vh;
+        height: calc(var(--vh, 1vh) * 10);
+        font-size:5vh;
         /*border:1px solid black;*/
 
     }
@@ -58,45 +65,52 @@ div.tableBody{
         display:flex;
         flex-direction:row;
         /*width: 60vw;*/
-        min-height:8vh;
-        min-height: calc(var(--vh, 1vh) * 8);
+        height:12vh;
+        height: calc(var(--vh, 1vh) * 12);
         background-color: darkcyan;
         color:white;
-        font-size:2.5vw;
+        font-size:3.5vw;
         border:1px solid black;
         border-bottom:none;
 
 
     }
+    .smallerFont {
+        font-size:2.0vw;
+    }
 }
 
 @media (orientation: portrait) {
+    div.tableContainer {
+        height:calc(var(--vh, 1vh) * 75);
+    }
+
     div.tableBody {
-        max-height: calc(var(--vh, 1vh) * 70);
+        /*height: calc(var(--vh, 1vh) * 62);*/
+        height:calc(var(--vh, 1vh) * 62);
+
     }
     div.tableRow {
-        display:flex;
-        flex-direction:row;
-        width:100%;
-        min-height:5vh;
-        min-height: calc(var(--vh, 1vh) * 5);
-        font-size:3.0vw;
-
-
+        height:5vh;
+        height: calc(var(--vh, 1vh) * 5);
+        font-size:3.5vw;
 
     }
     div.tableHeader {
         display:flex;
         flex-direction:row;
         /*width: 60vw;*/
-        min-height:8vh;
-        min-height: calc(var(--vh, 1vh) * 8);
+        height:8vh;
+        height: calc(var(--vh, 1vh) * 8);
         background-color: darkcyan;
         color:white;
         font-size:3.5vw;
 
         border:1px solid black;
         border-bottom:none;
+    }
+    .smallerFont {
+        font-size:3vw;
     }
 }
 
@@ -106,16 +120,23 @@ div.tableRow:nth-child(odd)  {
 }
 div.tableBodyElement {
     border-right: 1px solid black;
-    border-bottom:1px solid black;
     text-align:center;
     display:flex;
     align-items:center;
     justify-content:center;
 
 }
+div.tableBodyElement:last-child {
+    border-right:none;
+}
+div.tableBodyElementContent.roomName>p{
+    text-decoration: underline;
+    /*color:red;*/
+
+}
 div.tableBodyElementContent {
     width:100%;
-    flex-grow:1;
+    /*height:100px;*/
 }
 div.tableRow:hover {
     background: #aaa;
@@ -125,7 +146,9 @@ div.tableRow:hover {
 }
 
 
-
+div.tableBody:last-child>.tableBodyElement {
+    border-bottom:none;
+}
 
 
 html>body div.tableHeader>div {

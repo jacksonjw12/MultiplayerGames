@@ -22,38 +22,72 @@ class SpyFall {
 
         ],this);
 
-        this.nominatePlayers = document.getElementById("nominatePlayers");
+        this.nominatePlayers = document.getElementById("playerSelectionList");
         this.inGamePlayers = document.getElementById("inGamePlayers");
-
-
-
+        this.playerSelector = document.getElementById("playerSelection");
+        this.playerSelectArrow = document.getElementById("playerSelectArrow");
+        this.playerSelectName = document.getElementById("playerSelectName");
     }
     initialize(){
         if(globals.debug){
             console.log("Initializing Game: ", this.game);
         }
+        let controls = document.getElementById("spyFallActionsSecondRow");
         if(this.room.admin === this.game.playerData.id){
-            document.getElementById("endGame").style.display = "inline-block";
+            // document.getElementById("endGame").style.display = "inline-block";
+            controls.innerHTML = `<div id="spyFallEndGame" class="button verySmallButton" onclick="endGame()">End The Game</div>`;
+        }
+        else{
+            controls.innerHTML = `<div id="spyFallLeaveRoom" class="button verySmallButton" onclick="leaveRoom()">Leave The Room</div>`;
         }
         this.identity = this.game.playerData.identity;
         this.role = this.game.playerData.role;
         this.location = this.game.location;
 
+        document.getElementById("spyFallActionsFirstRow").style.display = "flex";
+        document.getElementById("spyLocationPrompt1").style.display="none";
+        document.getElementById("spyLocationPrompt2").style.display="none";
+        document.getElementById("spyLocationPrompt3").style.display="none";
+        document.getElementById("nominateDivider").style.display = "none";
+        document.getElementById("selectAllSpies").style.display = "none";
+        document.getElementById("showLocationScreenFromNomination").style.display = "none";
+
         if(this.identity === "innocent"){
-            document.getElementById("location").innerHTML = "Location: " + this.location;
-            document.getElementById("role").innerHTML = "Role: " + this.role;
+            document.getElementById("spyFallLocation").innerHTML = this.location;
+            document.getElementById("spyFallRole").innerHTML = this.role;
+            document.getElementById("spyFallGameLocationContainer").style.display = "flex";
+            document.getElementById("spyFallRoleContainer").style.display = "flex";
+            document.getElementById("spyFallGoal").innerHTML = "Find the Spy to Win"
+            document.getElementById("locationsTitle").style.display="flex";
+
         }
         else if(this.identity === "spy"){
-            document.getElementById("location").innerHTML = "You are a spy";
-            document.getElementById("role").style.display = "none";
-            document.getElementById("showGuessLocationScreen").style.display = "inline-block";
+            document.getElementById("spyFallIdentity").innerHTML = "You are a Spy";
+            document.getElementById("spyFallIdentity").style.display="flex";
+            document.getElementById("spyFallGoal").innerHTML = "Figure out the Location to Win"
+            document.getElementById("locationsTitle").style.display="none";
+            document.getElementById("spyLocationPrompt1").style.display="flex";
+            document.getElementById("spyLocationPrompt2").style.display="flex";
+            document.getElementById("showLocationScreenFromNomination").style.display = "block";
+
+            if(this.game.spyFullAllowed){
+                document.getElementById("spyLocationPrompt3").style.display="flex";
+                document.getElementById("nominateDivider").style.display = "flex";
+                document.getElementById("selectAllSpies").style.display = "flex";
+            }
+
+            // document.getElementById("showGuessLocationScreen").style.display = "inline-block";
+
         }
         else{//spectator
-            document.getElementById("location").innerHTML = "You are a spectator";
-            document.getElementById("role").style.display = "none";
+            document.getElementById("spyFallActionsFirstRow").style.display = "none";
+            document.getElementById("spyFallIdentity").innerHTML = "You are a spectator";
+            document.getElementById("spyFallGoal").style.display = "none";
+            document.getElementById("spyFallIdentity").style.display="flex";
         }
 
         this.updatePlayerLists();
+        this.showGameLocation();
 
     }
     updatePlayerLists(){
@@ -64,9 +98,9 @@ class SpyFall {
 			inGamePlayerContent+=getIGPlayerItem(this.game.players[p],this.game.firstPlayerId);
             nominatePlayersContent+=getNominatePlayerItem(this.game.players[p],this.game.playerData.id);
 		}
-		if(this.game.spyFullAllowed && this.game.playerData.identity === "spy"){
-		    nominatePlayersContent+=getNominatePlayerItem({"name":"<b>Everyone here is a spy!</b>","id":""},"");
-        }
+		// if(this.game.spyFullAllowed && this.game.playerData.identity === "spy"){
+		//     nominatePlayersContent+=getNominatePlayerItem({"name":"<b>Everyone here is a spy!</b>","id":""},"");
+        // }
 		this.inGamePlayers.innerHTML = inGamePlayerContent;
         this.nominatePlayers.innerHTML = nominatePlayersContent;
 
@@ -85,13 +119,16 @@ class SpyFall {
         }
 
 
-
+        if(!this.game.playerData.canNominate){
+            document.getElementById("showNominationScreen").style.display = "none";
+        }
 
 
         if(game.scene === "default"){
 
         }
         else if(game.scene === "vote"){
+            this.hideModal();
             this.nominating = false;
             this.guessingLocation = false;
             document.getElementById("vote_endGame").style.display = (game.playerData.id === room.adminId)?"block":"none";
@@ -141,46 +178,50 @@ class SpyFall {
 
 
 
-        document.getElementById("scene_guessLocation").style.display = (!this.nominating &&this.guessingLocation && game.scene === "default")?"flex":"none";
-        document.getElementById("scene_nominate").style.display = (this.nominating && game.scene === "default")?"flex":"none";
+        // document.getElementById("scene_guessLocation").style.display = (!this.nominating &&this.guessingLocation && game.scene === "default")?"flex":"none";
         document.getElementById("scene_default").style.display = (!this.nominating && !this.guessingLocation && game.scene === "default")?"flex":"none";
         document.getElementById("scene_vote").style.display = (game.scene === "vote" && this.identity !== "spectator")?"flex":"none";
         document.getElementById("scene_results").style.display = (game.scene === "results")?"flex":"none";
 
 
     }
-    showGuessLocationScreen(){
+    // showGuessLocationScreen(){
+    //     if(this.game.playerData.identity === "spy"){
+    //         this.guessingLocation = true;
+    //         this.nominating = false;
+    //         this.update(this.game,this.room);
+    //     }
+    // }
+    // hideGuessLocationScreen(){
+    //     this.guessingLocation = false;
+    //     this.update(this.game,this.room);
+    // }
+    guessLocation(element){
         if(this.game.playerData.identity === "spy"){
-            this.guessingLocation = true;
-            this.nominating = false;
-            this.update(this.game,this.room);
-        }
-    }
-    hideGuessLocationScreen(){
-        this.guessingLocation = false;
-        this.update(this.game,this.room);
-    }
-    guessLocation(locationName){
-        if(this.game.playerData.identity === "spy"){
-            globals.socket.emit('gameInteraction',{"type":"guessLocation","locationName":locationName});
+            // let location = element.id.substring(9);//"location_"
+            let locationName = element.firstElementChild.innerHTML;
+            if(confirm(`Really Pick ${locationName}? If it's wrong you lose.`)){
+                globals.socket.emit('gameInteraction',{"type":"guessLocation","locationName":locationName});
+
+            }
         }
     }
 
-    showNominationScreen(){
-        if(this.game.playerData.canNominate){
-            this.nominating = true;
-            this.guessingLocation = false;
-            this.update(this.game,this.room);
-
-        }
-
-    }
-    hideNominationScreen(){
-        this.nominating = false;
-        document.getElementById("scene_nominate").style.display = "none";
-        document.getElementById("scene_default").style.display = "block";
-        this.update(this.game,this.room);
-    }
+    // showNominationScreen(){
+    //     if(this.game.playerData.canNominate){
+    //         this.nominating = true;
+    //         this.guessingLocation = false;
+    //         this.update(this.game,this.room);
+    //
+    //     }
+    //
+    // }
+    // hideNominationScreen(){
+    //     this.nominating = false;
+    //     document.getElementById("scene_nominate").style.display = "none";
+    //     document.getElementById("scene_default").style.display = "block";
+    //     this.update(this.game,this.room);
+    // }
 
     vote(guilty){
         if(!this.allowedToVote){
@@ -188,38 +229,81 @@ class SpyFall {
         }
          globals.socket.emit('gameInteraction',{"type":"vote","guilty":guilty});
     }
-    nominate(id){
-        console.log(id);
-        if(!this.game.playerData.canNominate){
-            return;
-        }
-        if(id.length === 0){
-            globals.socket.emit('gameInteraction',{"type":"nomination","nominateEveryone":true});
-            return;
-        }
-        globals.socket.emit('gameInteraction',{"type":"nomination","nominateEveryone":false,"nomineeId":id})
 
-    }
     toggleStrike(e){
         //probably don't let the player strike themself?
-        if(e.id.substring(2) === globals.playerId){
+        //format of ids is ig_{player.id}
+        if(e.id.substring(3) === globals.playerId){
+
             return;
         }
 
         e.classList.toggle("striked");
     }
 
-
-    static toggleLocationInfo(){
-        if(document.getElementById("locationToggleText").innerHTML === "hide"){
-            document.getElementById("sensitiveInfo").style.display = "none";
-            document.getElementById("locationToggleText").innerHTML ="show";
-        }
-        else{
-            document.getElementById("sensitiveInfo").style.display = "block";
-            document.getElementById("locationToggleText").innerHTML = "hide";
-        }
+    hideModal(){
+        document.getElementById("spyFallModal").style.display = "none";
+        this.toggleModalContents();
     }
+    toggleModalContents(modalType){
+        document.getElementById("spyFallGameLocationModal").style.display = (modalType==="gameLocation")?"flex":"none";
+        document.getElementById("spyFallLocationsModal").style.display = (modalType==="locations")?"flex":"none";
+        document.getElementById("spyFallNominationsModal").style.display = (modalType==="nominations")?"flex":"none";
+
+    }
+
+    showGameLocation(){
+        this.toggleModalContents("gameLocation");
+        document.getElementById("spyFallModal").style.display = "flex";
+    }
+    showLocations(){
+        this.toggleModalContents("locations");
+        document.getElementById("spyFallModal").style.display = "flex";
+    }
+    showNominations(){
+        this.toggleModalContents("nominations");
+        document.getElementById("spyFallModal").style.display = "flex";
+    }
+
+    togglePlayerSelectMenu(){
+
+        let hiddenState = this.playerSelector.classList.toggle("hideSelections");
+        // console.log(this.playerSelector.classList,this.playerSelector)
+        this.playerSelectArrow.classList.toggle("down",hiddenState);
+        this.playerSelectArrow.classList.toggle("up",!hiddenState);
+
+    }
+    closePlayerSelectMenu(){
+        this.playerSelector.classList.toggle("hideSelections",true);
+        this.playerSelectArrow.classList.toggle("down",true);
+        this.playerSelectArrow.classList.toggle("up",false);
+    }
+    nominate(e){
+        e = (e !== undefined)?e:{"innerHTML":"Nominate a Player:",id:""};
+
+        let id = e.id.substring(3);//np_id
+        if(globals.debug){
+            console.log("Nominating player: " + e.id);
+        }
+        if(!this.game.playerData.canNominate){
+            showPopUp("You cannot nominate another player");
+            return;
+        }
+        this.playerSelectName.innerHTML = e.innerHTML;
+        if(id.length === 0){
+            globals.socket.emit('gameInteraction',{"type":"nomination","nominateEveryone":true});
+            return;
+        }
+        globals.socket.emit('gameInteraction',{"type":"nomination","nominateEveryone":false,"nomineeId":id})
+
+        this.hideModal();
+
+
+    }
+
+
+
+
     static readGameOptions(){
         let playWithSpyFull = document.getElementById("playWithSpyFull").checked;
         return {"playWithSpyFull":playWithSpyFull}
@@ -252,10 +336,10 @@ function getIGPlayerItem(plr,firstPlayerId){
 
     if(plr.id === firstPlayerId){
 
-        return `<div class="player-name spyFallPlayerName" id="ig_${plr.id}" style="color:#${plr.id}" onClick="globals.game.toggleStrike(this)"><p class="player-name-text">${plr.name}</p><div class="firstPlayer">1st</div></div>`
+        return `<div class="player-name spyFallPlayerName unselectable" id="ig_${plr.id}" style="color:#${plr.id}" onClick="globals.game.toggleStrike(this)"><p class="player-name-text">${plr.name}</p><div class="firstPlayer">1st</div></div>`
     }
 
-    return `<div class="player-name spyFallPlayerName" id="ig_${plr.id}" style="color:#${plr.id}" onClick="globals.game.toggleStrike(this)"><p class="player-name-text">${plr.name}</p></div>`
+    return `<div class="player-name spyFallPlayerName unselectable" id="ig_${plr.id}" style="color:#${plr.id}" onClick="globals.game.toggleStrike(this)"><p class="player-name-text">${plr.name}</p></div>`
 
 }
 
@@ -263,7 +347,7 @@ function getIGPlayerItem(plr,firstPlayerId){
 function getNominatePlayerItem(player,playerId){
     // console.log(player,first);
 	if(player.id !== playerId || playerId.length === 0){
-		return '<li class="player-name" onclick="globals.game.nominate(`' + player.id +'`)">'+player.name+'</li>'
+	    return `<div class="playerSelectOption" id="np_${player.id}" onclick="globals.game.nominate(this)"><p>${player.name}</p></div>`
 	}
 	return ``;
 
@@ -271,83 +355,126 @@ function getNominatePlayerItem(player,playerId){
 
 let spyFallHTML =
     `<div id="sceneContainer" class="flexColumn fullHeight fullWidth">
-        <div id="scene_default" class="flexColumn fullHeight fullWidth" style="">
-			<div id="locationText" class="locationClass">
-				<a class="locationDisplayToggle" onclick="SpyFall.toggleLocationInfo()"><i id="locationToggleText">hide</i></a>
-				<div id="sensitiveInfo">
-					<h2 id="location"> Location: place</h2>
-					<h2 id="role"> Role : job </h2>
-				</div>
-			</div>
+        <div id="scene_default" class="flexColumn fullHeight fullWidth spaceEvenly" style="">
+			<div class="button verySmallButton" onclick="globals.game.showGameLocation()">Re-Show Location</div>
 
-			<h3>Players</h3>
-                <div id="inGamePlayers" class="playerList flexColumn fullWidth">
-                
-                </div>
+			<h3 class="subTitle roomTitle"><u>Players</u></h3>
+            <div id="inGamePlayers" class="playerList flexColumn fullWidth">
+            
+            </div>
                     
 
-<!--			<div class="ingameplayerListContainer" >-->
-<!--				<ul id="ingamePlayers" class="ingame-player-list">-->
-<!--				</ul>-->
-<!--				</br>-->
-<!--			</div>-->
-
-			</br>
-
-			<button id="endGame" class="smallerIntroButton" onclick="endGame()" style="display:none;">End The Game</button>
-			<button id="showNominationScreen" class="smallerIntroButton" onclick="globals.game.showNominationScreen()">Vote For the Spy</button>
-			<button id="showGuessLocationScreen" class="smallerIntroButton" onclick="globals.game.showGuessLocationScreen()" style="display:none;">Guess the Location</button>
-
-			<button id="leaveRoom" class="smallerIntroButton" onclick="leaveRoom()">Leave The Room</button>
-
-			</br>
-
-			<h3><u> Location List</u></h3>
-
-			<ul id="locationRefList" class="locationRefList" style="display:none;">
-				<li class="locationReference" onclick="strikeRef(this)">airplane</li>
-				<li class="locationReference" onclick="strikeRef(this)">bank</li>
-				<li class="locationReference" onclick="strikeRef(this)">beach</li>
-				<li class="locationReference" onclick="strikeRef(this)">cathedral</li>
-				<li class="locationReference" onclick="strikeRef(this)">circus tent</li>
-				<li class="locationReference" onclick="strikeRef(this)">corporate party</li>
-				<li class="locationReference" onclick="strikeRef(this)">crusader army</li>
-				<li class="locationReference" onclick="strikeRef(this)">casino</li>
-				<li class="locationReference" onclick="strikeRef(this)">day spa</li>
-				<li class="locationReference" onclick="strikeRef(this)">embassy</li>
-				<li class="locationReference" onclick="strikeRef(this)">hospital</li>
-				<li class="locationReference" onclick="strikeRef(this)">hotel</li>
-				<li class="locationReference" onclick="strikeRef(this)">military base</li>
-				<li class="locationReference" onclick="strikeRef(this)">movie studio</li>
-			</ul>
-			<ul id="locationRefList2" class="locationRefList" style="display:none;">
-				<li class="locationReference" onclick="strikeRef(this)">ocean liner</li>
-				<li class="locationReference" onclick="strikeRef(this)">passenger train</li>
-				<li class="locationReference" onclick="strikeRef(this)">pirate ship</li>
-				<li class="locationReference" onclick="strikeRef(this)">polar station</li>
-				<li class="locationReference" onclick="strikeRef(this)">police station</li>
-				<li class="locationReference" onclick="strikeRef(this)">restaurant</li>
-				<li class="locationReference" onclick="strikeRef(this)">school</li>
-				<li class="locationReference" onclick="strikeRef(this)">service station</li>
-				<li class="locationReference" onclick="strikeRef(this)">space station</li>
-				<li class="locationReference" onclick="strikeRef(this)">submarine</li>
-				<li class="locationReference" onclick="strikeRef(this)">supermarket</li>
-				<li class="locationReference" onclick="strikeRef(this)">theater</li>
-				<li class="locationReference" onclick="strikeRef(this)">university</li>
-				<li class="locationReference" onclick="strikeRef(this)">world war ii squad</li>
-			</ul>
-		</div>
-		<div id="scene_nominate" class="flexColumn fullHeight fullWidth" style="display:none;">
-            <h2>Nominate a player as the spy, and commence a group vote</h2>
-            <h3>Each player can only do this once per game, once they are all used up, the spy wins</h3>
-            <h3>The vote must be unanimous(excluding the player who is nominated)</h3>
-            <button id="hideNominationScreen" class="smallerIntroButton" onclick="globals.game.hideNominationScreen()">Go back</button>
-            <div class="ingameplayerListContainer" >
-                <ul id="nominatePlayers" class="ingame-player-list">
-                </ul>
+            <div id="spyFallActionsFirstRow" class="flexRow middleZIndex">
+                <div id="showNominationScreen" class="button verySmallButton" onclick="globals.game.showNominations()">Vote For the Spy</div>
+			    <div id="showLocationScreen" class="button verySmallButton" onclick="globals.game.showLocations()">Show Locations</div>
             </div>
-        </div>
-        <div id="scene_guessLocation" class="flexColumn fullHeight fullWidth" style="display:none;">
+             <div id="spyFallActionsSecondRow" class="flexRow middleZIndex">
+
+            </div>
+
+            <div id="spyFallModal" class="modalOverlay flexColumn fullWidth spaceAround higherZIndex" onclick="globals.game.hideModal();" style="display:none;">
+                <div id="spyFallGameLocationModal" class="modalContentContainer flexColumn" style="display:none;" onclick="event.stopPropagation();">
+                    <div id="spyFallGameLocationContainer" class="flexRow" style="display:none;">
+                        <h2 class="noPadding">Location :&nbsp;</h2>
+                        <h2 class="noPadding" id="spyFallLocation">location</h2>
+                    </div>
+                    <div id="spyFallRoleContainer" class="flexRow" style="display:none;">
+                        <h2 class="noPadding">Role :&nbsp;</h2>
+                        <h2 class="noPadding" id="spyFallRole">job</h2>
+                    </div>
+                    
+                    <h2 id="spyFallIdentity" style="display:none;"></h2>
+                    
+                    
+                    <h4 id="spyFallGoal">Find the Spy to Win</h4>
+                    <div class="button verySmallButtonNoWidth" onclick="globals.game.hideModal();">Got it</div>
+                </div>
+                <div id="spyFallLocationsModal" class="modalContentContainer flexColumn" style="display:none;" onclick="event.stopPropagation();">
+                    <h2 id="locationsTitle" class="locationsPrompt">Locations</h2>
+
+                    <h2 id="spyLocationPrompt1" class="locationsPrompt" style="display:none;">Guess the Location</h2>
+                    <h3 id="spyLocationPrompt2" class="locationsPrompt" style="display:none;">Wrong guess and you lose</h3>
+                    <div id="locationsContainer" class="locationsContainer spyClickable">
+                        <div class="locationName spyFallPlayerName unselectable" id="location_airplane" onclick="globals.game.guessLocation(this)"><p class="locationName-text">Airplane</p></div>
+                        <div class="locationName spyFallPlayerName unselectable" id="location_bank" onclick="globals.game.guessLocation(this)"><p class="locationName-text">Bank</p></div>                      
+                        <div class="locationName spyFallPlayerName unselectable" id="location_beach" onclick="globals.game.guessLocation(this)"><p class="locationName-text">Beach</p></div>
+                        <div class="locationName spyFallPlayerName unselectable" id="location_cathedral" onclick="globals.game.guessLocation(this)"><p class="locationName-text">Cathedral</p></div>
+                        <div class="locationName spyFallPlayerName unselectable" id="location_circusTent" onclick="globals.game.guessLocation(this)"><p class="locationName-text">Circus Tent</p></div>
+                        <div class="locationName spyFallPlayerName unselectable" id="location_corporateParty" onclick="globals.game.guessLocation(this)"><p class="locationName-text">Corporate Party</p></div>
+                        <div class="locationName spyFallPlayerName unselectable" id="location_crusaderArmy" onclick="globals.game.guessLocation(this)"><p class="locationName-text">Crusader Army</p></div>
+                        <div class="locationName spyFallPlayerName unselectable" id="location_casino" onclick="globals.game.guessLocation(this)"><p class="locationName-text">Casino</p></div>
+                        <div class="locationName spyFallPlayerName unselectable" id="location_daySpa" onclick="globals.game.guessLocation(this)"><p class="locationName-text">Day Spa</p></div>
+                        <div class="locationName spyFallPlayerName unselectable" id="location_embassy" onclick="globals.game.guessLocation(this)"><p class="locationName-text">Embassy</p></div>
+                        <div class="locationName spyFallPlayerName unselectable" id="location_hospital" onclick="globals.game.guessLocation(this)"><p class="locationName-text">Hospital</p></div>
+                        <div class="locationName spyFallPlayerName unselectable" id="location_hotel" onclick="globals.game.guessLocation(this)"><p class="locationName-text">Hotel</p></div>
+                        <div class="locationName spyFallPlayerName unselectable" id="location_militaryBase" onclick="globals.game.guessLocation(this)"><p class="locationName-text">Military Base</p></div>
+                        <div class="locationName spyFallPlayerName unselectable" id="location_movieStudio" onclick="globals.game.guessLocation(this)"><p class="locationName-text">Movie Studio</p></div>
+                        <div class="locationName spyFallPlayerName unselectable" id="location_oceanLiner" onclick="globals.game.guessLocation(this)"><p class="locationName-text">Ocean Liner</p></div>
+                        <div class="locationName spyFallPlayerName unselectable" id="location_passengerTrain" onclick="globals.game.guessLocation(this)"><p class="locationName-text">Passenger Train</p></div>
+                        <div class="locationName spyFallPlayerName unselectable" id="location_pirateShip" onclick="globals.game.guessLocation(this)"><p class="locationName-text">Pirate Ship</p></div>
+                        <div class="locationName spyFallPlayerName unselectable" id="location_polarStation" onclick="globals.game.guessLocation(this)"><p class="locationName-text">Polar Station</p></div>
+                        <div class="locationName spyFallPlayerName unselectable" id="location_policeStation" onclick="globals.game.guessLocation(this)"><p class="locationName-text">Police Station</p></div>
+                        <div class="locationName spyFallPlayerName unselectable" id="location_restaurant" onclick="globals.game.guessLocation(this)"><p class="locationName-text">Restaurant</p></div>
+                        <div class="locationName spyFallPlayerName unselectable" id="location_school" onclick="globals.game.guessLocation(this)"><p class="locationName-text">School</p></div>
+                        <div class="locationName spyFallPlayerName unselectable" id="location_serviceStation" onclick="globals.game.guessLocation(this)"><p class="locationName-text">Service Station</p></div>
+                        <div class="locationName spyFallPlayerName unselectable" id="location_spaceStation" onclick="globals.game.guessLocation(this)"><p class="locationName-text">Space Station</p></div>
+                        <div class="locationName spyFallPlayerName unselectable" id="location_submarine" onclick="globals.game.guessLocation(this)"><p class="locationName-text">Submarine</p></div>
+                        <div class="locationName spyFallPlayerName unselectable" id="location_supermarket" onclick="globals.game.guessLocation(this)"><p class="locationName-text">Supermarket</p></div>
+                        <div class="locationName spyFallPlayerName unselectable" id="location_theater" onclick="globals.game.guessLocation(this)"><p class="locationName-text">Theater</p></div>
+                        <div class="locationName spyFallPlayerName unselectable" id="location_university" onclick="globals.game.guessLocation(this)"><p class="locationName-text">University</p></div>
+                        <div class="locationName spyFallPlayerName unselectable" id="location_worldWar2Squad" onclick="globals.game.guessLocation(this)"><p class="locationName-text">World War 2 Squad</p></div>
+                        
+                    </div>
+                   
+                   
+                        
+                    <div id="hideLocationsScreen" class="button verySmallButton" onclick="globals.game.hideModal()">Go back</div>
+                    <h5 id="spyLocationPrompt3" class="locationsPrompt" style="display:none;">Hint: Remember there is a chance all players are spies.</h5>
+    
+                </div>
+                
+                <div id="spyFallNominationsModal" class="nominateModalContentContainer flexColumn" style="display:none;" onclick="event.stopPropagation();globals.game.closePlayerSelectMenu();">
+                    <div class="nominateModal">
+                        <div id="playerSelection" class="playerSelect hideSelections" onclick="event.stopPropagation();globals.game.togglePlayerSelectMenu()">
+
+                            <div class="playerSelectButton unselectable"><div class="playerSelectButtonText"><h3 id="playerSelectName">Nominate a Player:</h3></div><div class="playerSelectButtonIconContainer"><i id="playerSelectArrow" class="arrow down"></i></div></div>
+                            <div id="playerSelectionList" class="spyFallPlayerSelectionList">
+<!--                                <div class="playerSelectOption" id="selectPlayer1" onclick="globals.game.nominate(this)"><p>Player 1</p></div>-->
+<!--                                <div class="playerSelectOption" id="selectPlayer2" onclick="globals.game.nominate(this)"><p>Player 2</p></div>-->
+<!--                            -->
+                            </div>
+                        </div>
+                        <div id="nominateDivider" class="nominateDivider" style="display:none;"><p class="nominateDividerText">or</p></div>
+                        <div id="selectAllSpies" style="display:none;" class="button verySmallButton" onclick="globals.game.nominate()">Everyone is a Spy!</div>
+
+                    
+                    </div>
+                    <div class="flexRow nominateActions">
+                        <div id="hideNominationScreen" class="button verySmallButton" onclick="globals.game.hideModal()">Go back</div>
+                        <div id="showLocationScreenFromNomination" style="display:none;" class="button verySmallButton" onclick="globals.game.showLocations()">Guess Location</div>
+                    </div>
+
+                </div>
+                <!--<div id="oldSpyFallNominationsModal" class="modalContentContainer nominateModal" style="display:none;">
+                    <h2>Nominate a player as the spy, and commence a group vote</h2>
+                    <h3>Each player can only do this once per game, once they are all used up, the spy wins</h3>
+                    <h3>The vote must be unanimous(excluding the player who is nominated)</h3>
+                    <div class="ingameplayerListContainer" >
+                        <ul id="nominatePlayers" class="ingame-player-list">
+                        </ul>
+                    </div>
+                    <div id="hideNominationScreen" class="smallerIntroButton" onclick="globals.game.hideModal()">Go back</div>
+
+                </div>-->
+            </div>
+			
+            
+    <!--<h3><u> Location List</u></h3>-->
+
+			
+		</div>
+		
+        <!--<div id="scene_guessLocation" class="flexColumn fullHeight fullWidth" style="display:none;">
             <h2>Guess the Location</h2>
             <h3>Wrong guess and you lose</h3>
             
@@ -385,7 +512,7 @@ let spyFallHTML =
 				<li class="locationReference" onclick="globals.game.guessLocation('world war ii squad')">world war ii squad</li>
 			</ul>
             
-        </div>
+        </div>-->
         <div id="scene_vote" class="flexColumn fullHeight fullWidth" style="display:none;">
             <h1 id="vote_playerName">Is Player a spy?</h1>
             <div id="vote_buttons" style="display:none;">

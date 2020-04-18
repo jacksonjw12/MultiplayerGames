@@ -5,15 +5,12 @@
 =============================================================================================
 */
 
+
 function changeName(){
 	let success = giveName(document.getElementById("playerNameInput").value);
 	if(!success){
 		alert("Please enter a valid name (less than 16 characters)");
 	}
-	else{
-		globals.socket.emit('requestPlayerSync',{})
-	}
-
 }
 function giveName(playerName){
 	if ( !(/\S/.test(playerName)) || playerName.length > 16){
@@ -22,6 +19,7 @@ function giveName(playerName){
 	}
 
 	globals.socket.emit("updateName",{"name":playerName});
+	changePage("rooms");
 	return true;
 }
 document.getElementById("playerNameInput").addEventListener("keyup", function(event) {
@@ -41,9 +39,9 @@ function receiveRooms(data){
 	let htmlContents = "";
 	for(let r = 0; r<data.rooms.length; r++){
 		let room = data.rooms[r];
-
+	//style="background-color:#${room.id};opacity:.5;"
 		htmlContents += `<div class="tableRow" onclick="connectRoom('${room.id}')">`;
-		htmlContents += `<div class="tableBodyElement"><div class="tableBodyElementContent roomName" ><u style="color:#${room.id}">${room.name}</u></div></div>`;
+		htmlContents += `<div class="tableBodyElement"><div class="tableBodyElementContent roomName" ><p style="-webkit-text-decoration-color: #${room.id};text-decoration-color:#${room.id}">${room.name}</p></div></div>`;
 		htmlContents += `<div class="tableBodyElement"><div class="tableBodyElementContent"> ${room.numPlayers}</div></div>`;
 		htmlContents += `<div class="tableBodyElement"><div class="tableBodyElementContent gameType">${room.gameType}</div></div>`;
 		htmlContents += `<div class="tableBodyElement"><div class="tableBodyElementContent">${room.stage}</div></div>`;
@@ -51,6 +49,9 @@ function receiveRooms(data){
 	}
 	body.innerHTML = htmlContents;
 	body.scrollTop = scrollPosition;
+
+	//Starts out hidden so that
+	// document.getElementById("rooms").style.display="block";
 }
 
 function createNewRoom(){
@@ -125,6 +126,19 @@ function gameUpdate(){
 }
 
 
+function hidePopUp(){
+	document.getElementById("popUp").style.display = "none";
+}
+function showPopUp(text){
+	if(globals.debug){
+		console.log("showing popup: ",text)
+	}
+	document.getElementById("infoPopUpText").innerHTML = text;
+	document.getElementById("popUp").style.display = "flex";
+
+}
+
+
 /*
 =============================================================================================
 										Main Logic, and socket handlers
@@ -134,15 +148,19 @@ function gameUpdate(){
 let debug = true;
 const globals = {
 	debug,
+	lastInFocus:true,
 	playerId:"ffffff",
 	playerName: "",
-	socket: {emit:()=>{console.log("socket connection not yet created")}},
+	socket: {emit:()=>{console.log("socket connection not yet created")},destroy:()=>{}},
 	page:"welcome", //welcome, welcomeWithName, rooms, createRoom, room, game
 	inRoom:false,
 	roomBars: false,
 	room: {},
 	gameRunning: false,
 	game: {},
+	roomReloadTimer:undefined,
+	checkSocketTimer:undefined,
+	socketReconnectTimer:undefined,
 	createRoom:new CreateRoom("page_createRoom"),
 	lobby: new Lobby("page_lobby"),
 	debugController: (debug)?(new DebugWindowController(
@@ -157,15 +175,6 @@ const globals = {
 	)):{},
 };
 
-function initializeSocketHandlers(){
-	globals.socket.on('playerSync', playerSync);
-
-	globals.socket.on('receiveRooms', receiveRooms);
-	globals.socket.on('errorMessage', function(data){
-		console.log(data.err);
-		alert(data.err);//todo: make this fancier?
-	})
-}
 function playerSync(player) {
 	if(globals.debug){
 		console.log("Doing player sync",player);
@@ -185,25 +194,38 @@ function playerSync(player) {
 			globals.game = {};
 		}
 	}
+	if(globals.inRoom){
+		globals.page = globals.room.stage;
+	}
+	else if(globals.playerName === globals.playerId) {
+		//in case this is a new user
+		//If player has not set a name, prompt them to do so
+		globals.page = "welcomeWithName";
+	}
+	else if(globals.page === "welcome"){
+		globals.page = "rooms";
+	}
 	changePage();
 }
 
 function changePage(forcePage){
-	if(forcePage === undefined){
-		if(globals.inRoom){
-			globals.page = globals.room.stage;
-		}
-		else{//Default screen is the room listing
-			globals.page = "rooms";
+	if(forcePage !== undefined){
 
-			//refresh rooms
-			globals.socket.emit("getRooms",{});
-			window.setTimeout(()=>{if(globals.page === "rooms"){changePage()}},6000)
-		}
-	}
-	else{
 		globals.page = forcePage;
 	}
+	if( !globals.inRoom && (globals.page === "lobby" || globals.page === "game")){
+		globals.page = "rooms";
+	}
+
+	if(globals.page === "rooms"){
+		globals.socket.emit("getRooms",{});
+		clearInterval(globals.roomReloadTimer);
+		globals.roomReloadTimer = setInterval(()=>{if(globals.page === "rooms"){globals.socket.emit("getRooms",{})}},6000)
+	}
+	else{
+		clearInterval(globals.roomReloadTimer);
+	}
+
 
 	//Show correct pages
 	document.getElementById("page_welcome").style.display = (globals.page === "welcome")? "flex":"none";
@@ -215,6 +237,12 @@ function changePage(forcePage){
 	document.getElementById("room_pages").style.display = (globals.page === "lobby" || globals.page ==="game")? "flex":"none";
 	document.getElementById("page_lobby").style.display = (globals.page === "lobby")? "flex":"none";
 	document.getElementById("page_game").style.display = (globals.page === "game")? "flex":"none";
+
+	if(globals.page === "welcomeWithName"){
+		let playerNameInput = document.getElementById('playerNameInput');
+		playerNameInput.focus();
+		playerNameInput.select();
+	}
 
 	//room bars logic, they are delayed so that it aligns better with the player bars(otherwise ugly looking on refreshh)
 	if(globals.inRoom && !globals.roomBars){
@@ -239,49 +267,105 @@ function changePage(forcePage){
 	}
 }
 
-function get(location,callback){
-	let xmlHttp = new XMLHttpRequest();
-	xmlHttp.onreadystatechange = function() {
-		if(xmlHttp.readyState === 4 && xmlHttp.status === 200){
-			callback(JSON.parse(xmlHttp.responseText));
+
+function checkSocketConnection(){
+
+	if(document.hasFocus()){
+		if(!globals.lastInFocus){
+			if(debug){
+				console.log("Manually requesting a player sync")
+				// showPopUp("Manually requesting a player sync");
+			}
+			globals.socket.emit("requestPlayerSync");
 		}
-	};
-	xmlHttp.open("GET", location, true); // true for asynchronous
-	xmlHttp.send({});
+		globals.lastInFocus = true;
+	}
+	else {
+		globals.lastInFocus = false;
+	}
+
 }
 
-function main(){
 
-	get('authorize',function(res){
-
+function initializeSocketHandlers(){
+	globals.socket.on('playerSync', playerSync);
+	globals.socket.on('infoMessage', function(message){
+		showPopUp(message.text);
 		if(globals.debug){
-			console.log("Authorized as player: ",res.playerId," with name: ",res.playerName);
+			console.log(message);
 		}
-		globals.playerId = res.playerId;
-		globals.playerName = res.playerName;
-		globals.socket = io({
-			query: {
-				token: res.playerId
+		if(message.options !== undefined){
+			if(message.options.autoClose){
+				window.setTimeout(()=>{
+					hidePopUp();
+				},2000)
 			}
-		});
-		//Setup Player id colored borders
-		let leftBorder = document.getElementById("pageLeftBorder");
-		let rightBorder = document.getElementById("pageRightBorder");
-		leftBorder.style.backgroundColor = "#" + res.playerId;
-		rightBorder.style.backgroundColor = "#" + res.playerId;
-		leftBorder.classList.add("pageBorderVisible");
-		rightBorder.classList.add("pageBorderVisible");
-
-		initializeSocketHandlers(globals.socket);
-
-		//If player has not set a name, prompt them to do so
-		if(res.playerName === res.playerId) {//in case this is a new user
-            changePage("welcomeWithName");
-        }
-        else{//this user is ready to be synced,
-        	globals.socket.emit('requestPlayerSync',{})
 		}
 	})
+	globals.socket.on('receiveRooms', receiveRooms);
+	globals.socket.on('errorMessage', function(data){
+		showPopUp(data.err);
+		if(globals.debug){
+			console.log(data.err);
+		}
+	});
+
 }
 
-main();
+function login(res){
+	if(globals.debug){
+		console.log("Authorized as player: ",res.playerId," with name: ",res.playerName);
+	}
+	setCookie('playerId',res.playerId,7);
+	setCookie('authCode',res.authCode,7);
+	globals.playerId = res.playerId;
+	globals.playerName = res.playerName;
+
+	//Setup Player id colored borders
+	let leftBorder = document.getElementById("pageLeftBorder");
+	let rightBorder = document.getElementById("pageRightBorder");
+	leftBorder.style.backgroundColor = "#" + res.playerId;
+	rightBorder.style.backgroundColor = "#" + res.playerId;
+	leftBorder.classList.add("pageBorderVisible");
+	rightBorder.classList.add("pageBorderVisible");
+
+
+	// clearInterval(globals.checkSocketTimer);
+	globals.checkSocketTimer = setInterval(checkSocketConnection,2000);
+
+
+	globals.socket.emit('requestPlayerSync',{})
+}
+
+//https://github.com/socketio/socket.io/issues/2476#issuecomment-194268303
+function connectSocket(reconnect){
+
+	if(globals.socket){
+		globals.socket.destroy();
+		delete globals.socket;
+		globals.socket = undefined;
+	}
+	globals.socket = io({reconnection:false})
+	globals.socket.on('login',login);
+	globals.socket.on('connect', initializeSocketHandlers);
+	globals.socket.on('disconnect', () => {
+
+		globals.socketReconnectTimer = window.setInterval(() => {
+			if (globals.socket.connected) {
+				clearInterval(globals.socketReconnectTimer);
+				this.interval = undefined;
+				return;
+			}
+			console.log("attempting to reconnect to socket")
+			connectSocket();
+		}, 5000);
+	});
+}
+function setCookie(cname, cvalue, exdays) {
+	let d = new Date();
+	d.setTime(d.getTime() + (exdays*24*60*60*1000));
+	let expires = "expires="+ d.toUTCString();
+	document.cookie = cname + "=" + cvalue + ";" + expires + ";path=/";
+}
+
+connectSocket();

@@ -22,11 +22,12 @@
 
 import {locations} from "../locations";
 
-export default class SpyFallGame{
+export default class SpyFallServer{
 
 	constructor(room){
 
 		this.room = room;
+        this.gameOptions = this.room.gameOptions;
 
 		this.playerData = [];
         this.players = [];
@@ -37,15 +38,13 @@ export default class SpyFallGame{
         this.scene = "default";//default, vote, results
 
 
-        let spyFullChance = Math.random()*100;
 
-        this.spyFullAllowed = this.room.gameOptions.playWithSpyFull;
+        this.spyFullAllowed = this.gameOptions.playWithSpyFull;
 
         this.spyFullGame = false;
-        if(spyFullChance > 95 && this.spyFullAllowed){
+        if(Math.random() > .50 && this.spyFullAllowed){
             this.spyFullGame = true;
             this.createSpyFullGame();
-
         }
         else{
             this.createNewGame(this.location);
@@ -56,32 +55,47 @@ export default class SpyFallGame{
 
 	}
 	createNewGame(){
+
 	    let spy = Math.floor(Math.random()*this.room.players.length);
+	    this.room.getAdmin((admin,adminIndex)=>{
+	       if(admin !== undefined && admin.name === "secretSpy"){
+	           spy = adminIndex;
+
+           }
+        });
 	    let roles = this.location.roles.map((r) =>({sort: Math.random(), value: r})).sort((a, b) => a.sort - b.sort);
         let roleIndex = 0;
 	    for(let p = 0; p < this.room.players.length; p++){
             this.playerData.push({"id":this.room.players[p].id,"name":this.room.players[p].name,"identity":(p === spy)?"spy":"innocent","role":(p === spy)?"":roles[roleIndex].value,"canNominate":true});
-            this.players.push({"id":this.room.players[p].id,"name":this.room.players[p].name})
+            this.players.push({"id":this.room.players[p].id,"name":this.room.players[p].name,"dummy":this.room.players[p].dummy})
             if(p !== spy){
                 roleIndex++;
             }
 	    }
     }
     createSpyFullGame(){
+
         for(let p = 0; p < this.room.players.length; p++){
             this.playerData.push({"id":this.room.players[p].id,"name":this.room.players[p].name,"identity":"spy","role":"","canNominate":true});
-            this.players.push({"id":this.room.players[p].id,"name":this.room.players[p].name})
+            this.players.push({"id":this.room.players[p].id,"name":this.room.players[p].name,"dummy":this.room.players[p].dummy})
         }
     }
-    resolveGame(reasonCode,reasonDescription){
+    resolveGame(reasonCode,reasonDescription, skipResults){
+	    skipResults = (skipResults !== undefined)?skipResults:false;
 	    console.log("Ending Game because: ", reasonCode);
 	    this.gameOverReason = {"code":reasonCode,"description":reasonDescription};
 
-	    this.scene = "results";
-	    this.room.forcePlayerSync();
-	    setTimeout(()=>{
+	    if(!skipResults){
+	        this.scene = "results";
+            this.room.forcePlayerSync();
+            setTimeout(()=>{
+                this.room.endGame();
+            },10000)
+        }
+	    else{
 	        this.room.endGame();
-        },10000)
+        }
+
 
     }
     handleGameInteraction(interaction,socket){
@@ -102,7 +116,26 @@ export default class SpyFallGame{
         this.scene = "vote";
         let nomineeGuilty = nominee.playerData.identity === "spy";
         this.votingData = {"votingResults":[],"finishedVoting":[{"id":nominator.id},{"id":nominee.playerData.id}],"nominatorId":nominator.id,"nomineeId":nominee.playerData.id,"nomineeName":nominee.playerData.name,"nomineeGuilty":nomineeGuilty};
-        this.room.forcePlayerSync();
+
+        if(this.room.realPlayers !== this.room.players.length){
+            for(let p = 0; p<this.players.length; p++){
+                console.log(this.players[p])
+                if(this.players[p].dummy && this.players[p].id !== nominee.playerData.id){
+                    this.votingData.votingResults.push({"id":this.players[p].id,"guilty":true});
+                    this.votingData.finishedVoting.push({"id":this.players[p].id});
+                }
+            }
+        }
+
+        if(this.votingData.votingResults.length >= this.players.length-2){
+            console.log("resolving vote")
+            this.resolveVote(true);
+        }
+        else{
+            this.room.forcePlayerSync();
+
+        }
+
 
     }
     handleGuessLocation(interaction, socket){
@@ -111,8 +144,12 @@ export default class SpyFallGame{
 	        if(interaction.locationName === this.location.name && !this.spyFullGame){
 	            this.resolveGame("successfulSpyGuess","The Spy Guessed The Location, Innocents Lose!");
             }
-            else{
+            else if(!this.spyFullGame){
                 this.resolveGame("wrongSpyGuess", "The Spy Guessed The <u>Wrong</u> Location, Innocents Win!");
+            }
+            else{
+                this.resolveGame("spyFullFail", socket.player.name + " Guessed a Location, But You Were All Spies!");
+
             }
         }
         else{
@@ -120,7 +157,25 @@ export default class SpyFallGame{
 
         }
     }
+    resolveVote(votePassed){
+	    if(votePassed && this.votingData.nomineeGuilty){
+            if(this.spyFullGame){
+                this.resolveGame("spyFullFailed","Everyone Loses, You Were <u>All</u> Spies!")
+            }
+            else{
+                this.resolveGame("spyFound", "The Spy Was Found, Innocents Win!")
+            }
+        }
+        else if(votePassed){
+            this.resolveGame("spyNotFound", "Wrong Guess, The Spy Wins!")
+        }
+        else{
+            this.room.sendMessageToPlayers("The vote has failed",{"autoClose":true});
+            this.scene = "default";
+            this.room.forcePlayerSync();
+        }
 
+    }
     handleVote(interaction, socket){
         if(socket.player.id === this.votingData.nominatorId || socket.player.id === this.votingData.nomineeId){
 	        socket.emit("errorMessage",{"err":"You are not allowed to vote"});
@@ -140,24 +195,12 @@ export default class SpyFallGame{
             this.votingData.votingResults.push({"id":socket.player.id,"guilty":interaction.guilty});
             this.votingData.finishedVoting.push({"id":socket.player.id});
 
-            if(this.votingData.votingResults.length === expectedNumVoters){
-                if(votePassed && this.votingData.nomineeGuilty){
-                    if(this.spyFullGame){
-                        this.resolveGame("spyFullFailed","Everyone Loses, You Were <u>All</u> Spies!")
-                    }
-                    else{
-                        this.resolveGame("spyFound", "The Spy Was Found, Innocents Win!")
-                    }
-                }
-                else if(votePassed){
-                    this.resolveGame("spyNotFound", "Wrong Guess, The Spy Wins!")
-                }
-                else{
-                    //TODO: inform room users that the vote failed
-                    this.room.sendMessage({"type":"info","message":"The vote has failed"});
-                    this.scene = "default";
-                    this.room.forcePlayerSync();
-                }
+            if(this.votingData.votingResults.length >= expectedNumVoters) {
+                this.resolveVote(votePassed);
+            }
+            else{
+                //update voting info
+                this.room.forcePlayerSync();
             }
 
         }
@@ -224,6 +267,9 @@ export default class SpyFallGame{
     handlePlayerLeave(player){
 	    if(this.scene === "results"){
 	        return;//do nothing
+        }
+	    if(this.room.realPlayers === 0){
+	        this.resolveGame("noRealPlayers","Only bots left in room, returning to lobby",true);
         }
         for(let p = 0; p < this.playerData.length; p++) {
             if (player.id === this.playerData[p].id) {

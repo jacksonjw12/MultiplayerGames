@@ -1,5 +1,6 @@
-import SpyFallGame from './SpyFallGame';
+import SpyFallServer from './SpyFallServer';
 import PlayerList from './PlayerList'
+import {io} from "../requestHandlers";
 
 export default class Room extends PlayerList{
 
@@ -17,8 +18,12 @@ export default class Room extends PlayerList{
 		this.adminId = undefined;
         Room.registerRoom(this)
 	}
-    sendMessage(msg){
-	    //TODO: send notification message to all players
+    sendMessageToPlayers(msg, options){
+        for(let p = 0; p < this.players.length; p++){
+            if(!this.players[p].dummy){
+                io.to('player_'+this.players[p].id).emit('infoMessage', {"text":msg,"options":options});
+            }
+        }
     }
     addPlayer(player,socket){
 	    if(this.players.length > 7){
@@ -69,10 +74,10 @@ export default class Room extends PlayerList{
 
     startGame(socket){
 
-	    if(this.stage === "lobby" && SpyFallGame.evaluateRoomReadyState(this)){
+	    if(this.stage === "lobby" && SpyFallServer.evaluateRoomReadyState(this)){
 	        this.stage = "game";
 	        if(this.gameType === "SpyFall"){
-	            this.game = new SpyFallGame(this);
+	            this.game = new SpyFallServer(this);
             }
             else{
                 this.game = {}
@@ -113,6 +118,17 @@ export default class Room extends PlayerList{
 	    };
 
 
+    }
+    getAdmin(cb){
+	    // console.log("getting admin")
+        // console.log(this.players)
+        // console.log(this.adminId)
+	    for(let p = 0; p < this.players.length; p++){
+	        if(this.players[p].id === this.adminId){
+	            cb(this.players[p],p);
+            }
+        }
+	    return cb(undefined,-1);
     }
 
     static removeRoom(room){
@@ -180,9 +196,9 @@ function makeId()
     return text;
 }
 
-export let room1 = new Room("Room 1","SpyFall",{"playWithSpyFall":true},true);
+export let room1 = new Room("Room 1 +","SpyFall",{"playWithSpyFull":true},true);
 
-export let room2 = new Room("Room 2","SpyFall",{"playWithSpyFall":false},true);
+export let room2 = new Room("Room 2 -","SpyFall",{"playWithSpyFull":false},true);
 for(let i = 3; i < 50; i++){
-    new Room("Room " + i,"SpyFall",{"playWithSpyFall":true},true);
+    new Room("Room " + i,"SpyFall",{"playWithSpyFull":true},true);
 }

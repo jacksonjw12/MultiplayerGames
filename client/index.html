@@ -6,15 +6,15 @@
 
 	<script>
 
-	function setVH(){
-		// First we get the viewport height and we multiple it by 1% to get a value for a vh unit
-		let vh = window.innerHeight * 0.01;
-		// Then we set the value in the --vh custom property to the root of the document
-		document.documentElement.style.setProperty('--vh', `${vh}px`);
-	}
-	window.addEventListener('resize', setVH);
-	window.addEventListener('orientationchange',setVH);
-	setVH();
+		function setVH(){
+			// First we get the viewport height and we multiple it by 1% to get a value for a vh unit
+			let vh = window.innerHeight * 0.01;
+			// Then we set the value in the --vh custom property to the root of the document
+			document.documentElement.style.setProperty('--vh', `${vh}px`);
+		}
+		window.addEventListener('resize', setVH);
+		window.addEventListener('orientationchange',setVH);
+		setVH();
 	</script>
 <!--	<link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">-->
 	<link rel="stylesheet" type="text/css" href="css/index.css">
@@ -56,30 +56,25 @@
 		</div>
 
 		<!-- Rooms List-->
-		<div id="page_rooms" class="page pageRooms fullHeight flexColumn spaceBetween" style="display:none">
-
+		<div id="page_rooms" class="page pageRooms fullHeight flexColumn spaceBetween fullWidth" style="display:none">
+			<div class="mainActions"><div class="button" onclick="changePage('welcomeWithName')" >Change Name</div></div>
 			<h1  class="courier subTitle">JacksonJW Games</h1>
+			<div class="button smallButton" id="joinButton" onclick="createNewRoom()">Create New Room</div>
 
-			<div class="button smallButton" id="joinButton" onclick="createNewRoom()">Create New Room</div><br>
-
-			<div id="rooms" class="tableContainer">
-
+			<div id="rooms" class="tableContainer" >
 					<div class="tableHeader">
 						<div class="tableHeaderElement"><div class="tableBodyElementContent roomName">Room Name</div></div>
 						<div class="tableHeaderElement"><div class="tableBodyElementContent smallerFont"># of Players</div></div>
 						<div class="tableHeaderElement"><div class="tableBodyElementContent">Game</div></div>
 						<div class="tableHeaderElement"><div class="tableBodyElementContent">Status</div></div>
 					</div>
-					<div class="tableBody" id="roomTableBody">
-
-					</div>
-
+					<div class="tableBody" id="roomTableBody"></div>
 			</div>
 		</div>
 
 		<!-- Create Room-->
 		<div id="page_createRoom" class="page pageCreateRoom fullHeight" style="display:none" onclick="globals.createRoom.closeGameSelectMenu()">
-			<div class="flexColumn fullHeight spaceAround">
+			<div class="flexColumn fullHeight fullWidth spaceAround">
 				<input type="text" id="roomNameInput" class="bigTextInput" placeholder="Enter a Room Name...">
 
 				<div id="gameSelection" class="gameSelect hideSelections" onclick="event.stopPropagation();globals.createRoom.handleGameSelectMenu()">
@@ -91,7 +86,7 @@
 					</div>
 				</div>
 
-				<div id="gamesSelectionOptions" class="gameSelectOptions flexColumn">
+				<div id="gamesSelectionOptions" class="gameSelectOptions flexColumn fullWidth">
 				</div>
 				<div class="button smallButton" id="newRoom" onclick="globals.createRoom.newRoom()">Create New Room</div>
 				<div class="button verySmallButton" id="hideCreateNewRoom" onclick="hideCreateNewRoom()">Go Back</div>
@@ -103,29 +98,29 @@
 		</div>
 
 		<!-- Lobby and Game-->
-		<div id="room_pages" class="page pageLobby fullHeight" style="display:none">
+		<div id="room_pages" class="pageContainer fullHeight fullWidth" style="display:none">
 
 			<div class="pageBorderContainer">
 				<div id="roomLeftBorder" class="pageBorder fullHeight"></div>
 			</div>
-
+			<div class="pageContent fullHeight">
 			<!--Lobby-->
-			<div id="page_lobby" class="flexColumn fullHeight spaceEvenly">
-<!--				<div class="flexColumn">-->
-					<h1 id="roomTitle" class="title roomTitle">Room: test</h1>
-					<h3 class="subTitle roomTitle"><u>Players</u></h3>
-					<div id="menuPlayers" class="playerList">
-						<!--Populated by Lobby.update() -->
-					</div>
-					<div id="startGame" class="button smallButton" onclick="startGame()" >Start Game</div>
-					<div id="leaveRoom" class="button verySmallButton" onclick="leaveRoom()">Leave The Room</div>
+				<div id="page_lobby" class="flexColumn fullWidth fullHeight spaceEvenly">
+	<!--				<div class="flexColumn">-->
+						<h1 id="roomTitle" class="title roomTitle">Room: test</h1>
+						<h3 class="subTitle roomTitle"><u>Players</u></h3>
+						<div id="menuPlayers" class="playerList">
+							<!--Populated by Lobby.update() -->
+						</div>
+						<div id="startGame" class="button smallButton" onclick="startGame()" >Start Game</div>
+						<div id="leaveRoom" class="button verySmallButton" onclick="leaveRoom()">Leave The Room</div>
+				</div>
+				<!--Game-->
+				<div id="page_game" class="flexColumn spaceEvenly fullHeight fullWidth">
+					<h3 class="title roomTitle">No Game Loaded Yet!</h3>
+					<!--Game Objects will populate this when loaded-->
+				</div>
 			</div>
-			<!--Game-->
-			<div id="page_game" class="flexColumn spaceEvenly fullHeight">
-				<h3 class="title roomTitle">No Game Loaded Yet!</h3>
-				<!--Game Objects will populate this when loaded-->
-			</div>
-
 			<div class="pageBorderContainer">
 				<div id="roomRightBorder" class="pageBorder fullHeight"></div>
 			</div>
@@ -135,6 +130,14 @@
 
 	<div class="pageBorderContainer">
 		<div id="pageRightBorder" class="pageBorder fullHeight"></div>
+	</div>
+
+	<div id="popUp" class="popUpOverlay flexColumn spaceAround fullWidth" onclick="hidePopUp();" style="display:none;">
+		<div id="infoPopUp" class="popUpContentContainer flexColumn fullWidth" onclick="event.stopPropagation();">
+			<p id="infoPopUpText">alert</p>
+
+			<div class="button verySmallButton" onclick="hidePopUp();">Ok</div>
+		</div>
 	</div>
 
 
@@ -150,16 +153,7 @@
 <!--	</div>-->
 
 </body>
-<script>
-	let lastScrollPos = 0;
-	window.addEventListener('scroll', function(e){
-		// window.scrollY = 0;
-		// if(window.scrollY == lastScrollPos && lastScrollPos !== 0){
-		//
-		// }
-		document.getElementById("welcomeTitle").innerHTML = (window.scrollY);
-	}, true);
-</script>
+
 <script src="js/main.js" ></script>
 </html>
 

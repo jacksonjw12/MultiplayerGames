@@ -1,6 +1,6 @@
 export const locations = [
   {
-    name: 'airplane',
+    name: 'Airplane',
     roles: [
       'first class passenger',
       'air marshall',
@@ -12,7 +12,7 @@ export const locations = [
     ]
   },
   {
-    name: 'bank',
+    name: 'Bank',
     roles: [
       'armored car driver',
       'manager',
@@ -24,7 +24,7 @@ export const locations = [
     ]
   },
   {
-    name: 'beach',
+    name: 'Beach',
     roles: [
       'beach waitress',
       'kite surfer',
@@ -36,7 +36,7 @@ export const locations = [
     ]
   },
   {
-    name: 'cathedral',
+    name: 'Cathedral',
     roles: [
       'priest',
       'beggar',
@@ -48,7 +48,7 @@ export const locations = [
     ]
   },
   {
-    name: 'circus tent',
+    name: 'Circus Tent',
     roles: [
       'acrobat',
       'animal trainer',
@@ -60,7 +60,7 @@ export const locations = [
     ]
   },
   {
-    name: 'corporate party',
+    name: 'Corporate Party',
     roles: [
       'entertainer',
       'manager',
@@ -72,7 +72,7 @@ export const locations = [
     ]
   },
   {
-    name: 'crusader army',
+    name: 'Crusader Army',
     roles: [
       'monk',
       'imprisoned saracen',
@@ -84,7 +84,7 @@ export const locations = [
     ]
   },
   {
-    name: 'casino',
+    name: 'Casino',
     roles: [
       'bartender',
       'head security guard',
@@ -96,7 +96,7 @@ export const locations = [
     ]
   },
   {
-    name: 'day spa',
+    name: 'Day Spa',
     roles: [
       'stylist',
       'masseuse',
@@ -108,7 +108,7 @@ export const locations = [
     ]
   },
   {
-    name: 'embassy',
+    name: 'Embassy',
     roles: [
       'security guard',
       'secretary',
@@ -120,7 +120,7 @@ export const locations = [
     ]
   },
   {
-    name: 'hospital',
+    name: 'Hospital',
     roles: [
       'nurse',
       'doctor',
@@ -132,7 +132,7 @@ export const locations = [
     ]
   },
   {
-    name: 'hotel',
+    name: 'Hotel',
     roles: [
       'doorman',
       'security guard',
@@ -144,7 +144,7 @@ export const locations = [
     ]
   },
   {
-    name: 'military base',
+    name: 'Military Base',
     roles: [
       'deserter',
       'colonel',
@@ -156,7 +156,7 @@ export const locations = [
     ]
   },
   {
-    name: 'movie studio',
+    name: 'Movie Studio',
     roles: [
       'stunt man',
       'sound engineer',
@@ -168,7 +168,7 @@ export const locations = [
     ]
   },
   {
-    name: 'ocean liner',
+    name: 'Ocean Liner',
     roles: [
       'cook',
       'captain',
@@ -180,7 +180,7 @@ export const locations = [
     ]
   },
   {
-    name: 'passenger train',
+    name: 'Passenger Train',
     roles: [
       'mechanic',
       'border patrol',
@@ -192,7 +192,7 @@ export const locations = [
     ]
   },
   {
-    name: 'pirate ship',
+    name: 'Pirate Ship',
     roles: [
       'cook',
       'slave',
@@ -204,7 +204,7 @@ export const locations = [
     ]
   },
   {
-    name: 'polar station',
+    name: 'Polar Station',
     roles: [
       'medic',
       'expedition leader',
@@ -216,7 +216,7 @@ export const locations = [
     ]
   },
   {
-    name: 'police station',
+    name: 'Police Station',
     roles: [
       'detective',
       'lawyer',
@@ -228,7 +228,7 @@ export const locations = [
     ]
   },
   {
-    name: 'restaurant',
+    name: 'Restaurant',
     roles: [
       'musician',
       'bouncer',
@@ -240,7 +240,7 @@ export const locations = [
     ]
   },
   {
-    name: 'school',
+    name: 'School',
     roles: [
       'gym teacher',
       'principal',
@@ -252,7 +252,7 @@ export const locations = [
     ]
   },
   {
-    name: 'service station',
+    name: 'Service Station',
     roles: [
       'manager',
       'tire specialist',
@@ -264,7 +264,7 @@ export const locations = [
     ]
   },
   {
-    name: 'space station',
+    name: 'Space Station',
     roles: [
       'engineer',
       'alien',
@@ -276,7 +276,7 @@ export const locations = [
     ]
   },
   {
-    name: 'submarine',
+    name: 'Submarine',
     roles: [
       'cook',
       'commander',
@@ -288,7 +288,7 @@ export const locations = [
     ]
   },
   {
-    name: 'supermarket',
+    name: 'Supermarket',
     roles: [
       'cashier',
       'butcher',
@@ -300,7 +300,7 @@ export const locations = [
     ]
   },
   {
-    name: 'theater',
+    name: 'Theater',
     roles: [
       'coat check lady',
       'prompter',
@@ -312,7 +312,7 @@ export const locations = [
     ]
   },
   {
-    name: 'university',
+    name: 'University',
     roles: [
       'graduate student',
       'professor',
@@ -324,7 +324,7 @@ export const locations = [
     ]
   },
   {
-    name: 'world war ii squad',
+    name: 'World War 2 Squad',
     roles: [
       'resistance fighter',
       'radioman',

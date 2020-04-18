@@ -36,9 +36,9 @@ function getMenuPlayerItem(plr,adminId,roomId){
 
         //https://stripesgenerator.com/
         let stripes = `background-image: linear-gradient(45deg, ${color1} 16.67%, ${color2} 16.67%, ${color2} 50%, ${color1} 50%, ${color1} 66.67%, ${color2} 66.67%, ${color2} 100%);`
-        return `<div class="player-name admin" style="${stripes}"><p class="player-name-text">${plr.name}</p></div>`
+        return `<div class="player-name admin unselectable" style="${stripes}"><p class="player-name-text">${plr.name}</p></div>`
     }
 
-    return `<div class="player-name " style="color:#${plr.id}"><p class="player-name-text">${plr.name}</p></div>`
+    return `<div class="player-name unselectable" style="color:#${plr.id}"><p class="player-name-text">${plr.name}</p></div>`
 
 }

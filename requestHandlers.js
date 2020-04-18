@@ -1,29 +1,49 @@
 export let io;
+export let debug = true;
 
 import Player from './models/Player.js';
 import Room from './models/Room.js';
 import socketio from "socket.io";
 
 
+function loginPlayer(socket){
+	let cookies = cookieParse(socket.handshake.headers.cookie);
+	let player = Player.get(cookies.playerId,cookies.authCode);
+	if (player) {
+		socket.player = player;
+		player.registerSocket(socket);
+		socket.emit('login',{'authCode':player.authCode,'playerId':player.id})
+		return;
+	}
+	if(debug){
+		console.log("Creating new player (invalid cookie or auth data)");
+	}
+
+	player = new Player();
+	socket.player = player;
+	player.registerSocket(socket);
+	socket.emit('login',{'authCode':player.authCode,'playerId':player.id})
+
+}
 export default function initializeSockets(server){
 
-
-	io = socketio(server);//require('socket.io')(server);
-
+	io = socketio(server);
 
 	io.use((socket, next) => {
-		let token = socket.handshake.query.token;
-		let player = Player.get(token);
-		if (player) {
-			socket.player = player;
-			player.registerSocket(socket);
-			return next();
+		if(!socket.player){
+			console.log("requesting a player login")
+			loginPlayer(socket)
 		}
-		return next(new Error('authentication error'));
+
+		return next();
 	});
 
 	io.on('connection', function (socket) {
-
+		socket.on('authentication', function(data){
+			// if()
+			// authorizePlayer(socket);
+			socket.emit('authorization',{"playerId":socket.player.id,"playerName":socket.player.name})
+		})
 		socket.on('updateName',function(data){
 
 			socket.player.updateName(escapeHtml(data.name));
@@ -36,7 +56,11 @@ export default function initializeSockets(server){
 		socket.on('joinRoom', function (data){
 
 			let room = Room.get(data.roomId);
-			if(room && room.players.length < 8){
+			if(room){
+				if(room.players.length >= 8){
+					socket.emit("errorMessage",{"err":"That room is full"});
+					return;
+				}
 				room.addPlayer(socket.player,socket);
 			}
 			else{
@@ -57,16 +81,19 @@ export default function initializeSockets(server){
 			}
 			else{
 				socket.emit("errorMessage",{"err":"You weren't in a room"});
-
 			}
-
 		});
-
 
 		socket.on('startGame',function(){
 			let room = Room.get(socket.player.roomId);
 			if(socket.player.inRoom && room.adminId === socket.player.id ){
 				room.startGame(socket);
+			}
+		});
+		socket.on('endGame',function(){
+			let room = Room.get(socket.player.roomId);
+			if(socket.player.inRoom && room.adminId === socket.player.id ){
+				room.endGame();
 			}
 		});
 		socket.on('gameInteraction',function(interaction){
@@ -79,6 +106,7 @@ export default function initializeSockets(server){
 
 		socket.on('requestPlayerSync', function(){
 			let room = Room.get(socket.player.roomId);
+			console.log("sending a player sync")
 			socket.emit('playerSync', {"inRoom":socket.player.inRoom,"room":socket.player.inRoom?room.getSafe(socket.player):undefined,"name":socket.player.name})
 		});
 
@@ -88,6 +116,9 @@ export default function initializeSockets(server){
 			console.log("socket disconnected");
 
 		});
+		socket.on('reconnect', function(){
+			console.log("got a reconnect call");
+		})
 
 
 	});
@@ -96,38 +127,44 @@ export default function initializeSockets(server){
 
 }
 
-//todo: make a password cookie value in player so that id spoofing cant happen
-export function authorize(req, res){
-	let cookie = req.headers.cookie;
-	let player = undefined;
-	if(cookie !== undefined){
-
-		let cookieParts = cookie.split('; ');
-
-		let playerId, authCode;
-		for(let c = 0; c < cookieParts.length; c++){
-			if(cookieParts[c].indexOf("playerId=") > -1){
-				playerId = cookieParts[c].substr(9);//playerId=
-			}
-			else if(cookieParts[c].indexOf("authCode=") > -1){
-				authCode = cookieParts[c].substr(9);
-			}
-		}
-		if(playerId !== undefined && authCode !== undefined){
-			player = Player.get(playerId,authCode);//returns undefined if no player exists with that id
-
-		}
+function cookieParse(cookieString){
+	if(cookieString === undefined){
+		return {};
 	}
-
-	if(cookie === undefined || player === undefined){
-		player = new Player();
-		res.cookie('authCode',player.authCode,{maxAge: 900000});
-		res.cookie('playerId', player.id, {maxAge: 900000})
+	let cookieParts = cookieString.split('; ');
+	let cookie = {}
+	let playerId, authCode;
+	for(let c = 0; c < cookieParts.length; c++){
+		let separator = cookieParts[c].indexOf("=");
+		let key = cookieParts[c].substring(0,separator);
+		let value = cookieParts[c].substring(separator+1);
+		cookie[key] = value;
 	}
-	console.log("player name: " + player.name);
-	res.send({"playerId":player.id,"playerName":player.name})
+	return cookie;
 }
 
+//
+// export function authorize(req, res){
+// 	let cookie = req.headers.cookie;
+// 	let player = undefined;
+// 	if(cookie !== undefined){
+//
+// 		let cookieObj = cookieParse(cookie)
+// 		if(cookieObj.playerId !== undefined && cookieObj.authCode !== undefined){
+// 			player = Player.get(cookieObj.playerId,cookieObj.authCode);//returns undefined if no player exists with that id
+//
+// 		}
+// 	}
+//
+// 	if(cookie === undefined || player === undefined){
+// 		player = new Player();
+// 		res.cookie('authCode',player.authCode,{maxAge: 8 * 3600000});//8 hours
+// 		res.cookie('playerId', player.id, {maxAge: 8 * 3600000})
+// 	}
+// 	console.log("player name: " + player.name);
+// 	res.send({"playerId":player.id,"playerName":player.name})
+// }
+//
 
 function escapeHtml(unsafe) {
     return unsafe
