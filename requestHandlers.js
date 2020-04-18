@@ -1,5 +1,5 @@
 export let io;
-export let debug = true;
+export let debug = false;
 
 import Player from './models/Player.js';
 import Room from './models/Room.js';

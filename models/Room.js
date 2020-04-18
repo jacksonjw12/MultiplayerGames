@@ -196,9 +196,9 @@ function makeId()
     return text;
 }
 
-export let room1 = new Room("Room 1 +","SpyFall",{"playWithSpyFull":true},true);
+export let room1 = new Room("SpyFall","SpyFall",{"playWithSpyFull":false},true);
 
-export let room2 = new Room("Room 2 -","SpyFall",{"playWithSpyFull":false},true);
-for(let i = 3; i < 50; i++){
-    new Room("Room " + i,"SpyFall",{"playWithSpyFull":true},true);
-}
+export let room2 = new Room("SpyFall ++","SpyFall",{"playWithSpyFull":true},true);
+// for(let i = 3; i < 50; i++){
+//     new Room("Room " + i,"SpyFall",{"playWithSpyFull":true},true);
+// }

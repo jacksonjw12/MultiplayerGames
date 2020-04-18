@@ -152,13 +152,13 @@ export default class Player{
 };
 Player.players = [];
 
-for(let i = 0; i <6; i++){
-    room1.addPlayer(new Player(true));
-}
-
-for(let i = 0; i <6; i++){
-    room2.addPlayer(new Player(true));
-}
+// for(let i = 0; i <6; i++){
+//     room1.addPlayer(new Player(true));
+// }
+//
+// for(let i = 0; i <6; i++){
+//     room2.addPlayer(new Player(true));
+// }
 
 function makeId()
 {

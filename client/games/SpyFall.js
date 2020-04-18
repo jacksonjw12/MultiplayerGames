@@ -13,15 +13,15 @@ class SpyFall {
         this.shouldInitialize = true;
         this.voteBack = false;
         this.voteBackFor = undefined;
-        this.debugGameController = new DebugGameController(
-            [
-                {"name":"default","id":"scene_default"},
-                {"name":"nominate","id":"scene_nominate"},
-                {"name":"guessLocation","id":"scene_guessLocation"},
-                {"name":"vote","id":"scene_vote"},
-                {"name":"results","id":"scene_results"}
-
-        ],this);
+        // this.debugGameController = new DebugGameController(
+        //     [
+        //         {"name":"default","id":"scene_default"},
+        //         {"name":"nominate","id":"scene_nominate"},
+        //         {"name":"guessLocation","id":"scene_guessLocation"},
+        //         {"name":"vote","id":"scene_vote"},
+        //         {"name":"results","id":"scene_results"}
+        //
+        // ],this);
 
         this.nominatePlayers = document.getElementById("playerSelectionList");
         this.inGamePlayers = document.getElementById("inGamePlayers");

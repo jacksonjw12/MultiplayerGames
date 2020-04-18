@@ -145,7 +145,7 @@ function showPopUp(text){
 ============================================================================================
 
 */
-let debug = true;
+let debug = false;
 const globals = {
 	debug,
 	lastInFocus:true,
@@ -163,16 +163,16 @@ const globals = {
 	socketReconnectTimer:undefined,
 	createRoom:new CreateRoom("page_createRoom"),
 	lobby: new Lobby("page_lobby"),
-	debugController: (debug)?(new DebugWindowController(
-		[
-			{"id":"page_welcome","name":"welcome"},
-			{"id":"page_welcomeWithName","name":"welcomeWithName"},
-			{"id":"page_rooms","name":"rooms"},
-			{"id":"page_createRoom","name":"createRoom"},
-			{"id":"page_lobby","name":"lobby"},
-			{"id":"page_game","name":"game"}
-		]
-	)):{},
+	// debugController: (debug)?(new DebugWindowController(
+	// 	[
+	// 		{"id":"page_welcome","name":"welcome"},
+	// 		{"id":"page_welcomeWithName","name":"welcomeWithName"},
+	// 		{"id":"page_rooms","name":"rooms"},
+	// 		{"id":"page_createRoom","name":"createRoom"},
+	// 		{"id":"page_lobby","name":"lobby"},
+	// 		{"id":"page_game","name":"game"}
+	// 	]
+	// )):{},
 };
 
 function playerSync(player) {
