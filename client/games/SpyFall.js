@@ -11,7 +11,8 @@ class SpyFall {
         this.allowedToVote = false;
         this.numPlayers = 0;
         this.shouldInitialize = true;
-
+        this.voteBack = false;
+        this.voteBackFor = undefined;
         this.debugGameController = new DebugGameController(
             [
                 {"name":"default","id":"scene_default"},
@@ -122,16 +123,18 @@ class SpyFall {
         if(!this.game.playerData.canNominate){
             document.getElementById("showNominationScreen").style.display = "none";
         }
+        if(this.voteBack && this.game.votingData.voteId !== this.voteBackFor){
+            this.voteBack = false;
+            this.voteBackFor = undefined;
+        }
 
-
-        if(game.scene === "default"){
+        if(game.scene === "default" || this.voteBack){
 
         }
         else if(game.scene === "vote"){
             this.hideModal();
             this.nominating = false;
             this.guessingLocation = false;
-            document.getElementById("vote_endGame").style.display = (game.playerData.id === room.adminId)?"block":"none";
 
             let allowedToVote = true;
             for(let p = 0; p< game.votingData.finishedVoting.length; p++){
@@ -139,33 +142,45 @@ class SpyFall {
                     allowedToVote = false;
                 }
             }
-
-            if(allowedToVote){
-
-                document.getElementById("vote_playerName").innerHTML = "Is " + game.votingData.nomineeName + " a spy?";
-                document.getElementById("vote_buttons").style.display = "block";
-            }
-            else{
-                let str = "Waiting for "+ game.votingData.numLeftToVote + " player";
-                str += ((game.votingData.numLeftToVote !== 1)?"s":"") + " to finish voting...";
-                document.getElementById("vote_playerName").innerHTML = str;
-                document.getElementById("vote_buttons").style.display = "none";
-            }
             this.allowedToVote = allowedToVote;
+
+            document.getElementById("vote_nominator").style.textDecorationColor = "#"+game.votingData.nominatorId;
+            document.getElementById("vote_nominee").style.textDecorationColor = "#"+game.votingData.nomineeId;
+
+            document.getElementById("vote_nominator").innerHTML = game.votingData.nominatorName;
+            document.getElementById("vote_nominee").innerHTML = game.votingData.nomineeName;
+            document.getElementById("vote_controls").style.display = (allowedToVote)?"flex":"none";
+            document.getElementById("vote_info").style.display = (!allowedToVote)?"flex":"none";
+            document.getElementById("vote_numLeftToVote").innerHTML = game.votingData.numLeftToVote;
+            document.getElementById("vote_numLeftToVotePlural").innerHTML = (game.votingData.numLeftToVote !== 1)?"s":"";
+
+
+
 
 
         }
         else if(game.scene === "results"){
-            this.nominating = false;
-            this.guessingLocation = false;
+
             this.results = game.results;
 
             document.getElementById("gameOverReason").innerHTML = game.gameOverReason.description;
+            if(!game.gameOverReason.spyFullGame){
+                document.getElementById("results_location").innerHTML = `Location: ${game.gameOverReason.location}`;
 
-            document.getElementById("resultsPlayers").innerHTML = "";
-            for(let p = 0; p < game.results.length; p++){
-                document.getElementById("resultsPlayers").innerHTML+=getResultsPlayerItem(game.results[p]);
+                for(let p = 0; p < game.results.length; p++){
+                    if(game.results[p].identity === "spy"){
+                        document.getElementById("results_spy").innerHTML = `Spy: <span class="player-name-text" style="text-decoration-color:#${game.results[p].id}">${game.results[p].name}`;
+                        break;
+                    }
+                    // document.getElementById("resultsPlayers").innerHTML+=getResultsPlayerItem(game.results[p]);
+                }
             }
+
+
+            //document.getElementById("resultsPlayers").innerHTML = "";
+            // for(let p = 0; p < game.results.length; p++){
+            //     document.getElementById("resultsPlayers").innerHTML+=getResultsPlayerItem(game.results[p]);
+            // }
 
 
         }
@@ -179,8 +194,8 @@ class SpyFall {
 
 
         // document.getElementById("scene_guessLocation").style.display = (!this.nominating &&this.guessingLocation && game.scene === "default")?"flex":"none";
-        document.getElementById("scene_default").style.display = (!this.nominating && !this.guessingLocation && game.scene === "default")?"flex":"none";
-        document.getElementById("scene_vote").style.display = (game.scene === "vote" && this.identity !== "spectator")?"flex":"none";
+        document.getElementById("scene_default").style.display = (game.scene === "default" || this.voteBack)?"flex":"none";
+        document.getElementById("scene_vote").style.display = (game.scene === "vote" && !this.voteBack)?"flex":"none";
         document.getElementById("scene_results").style.display = (game.scene === "results")?"flex":"none";
 
 
@@ -197,6 +212,10 @@ class SpyFall {
     //     this.update(this.game,this.room);
     // }
     guessLocation(element){
+        if(this.game.scene !== "default"){
+            showPopUp("Wait for the vote to end");
+            return;
+        }
         if(this.game.playerData.identity === "spy"){
             // let location = element.id.substring(9);//"location_"
             let locationName = element.firstElementChild.innerHTML;
@@ -206,22 +225,14 @@ class SpyFall {
             }
         }
     }
-
-    // showNominationScreen(){
-    //     if(this.game.playerData.canNominate){
-    //         this.nominating = true;
-    //         this.guessingLocation = false;
-    //         this.update(this.game,this.room);
-    //
-    //     }
-    //
-    // }
-    // hideNominationScreen(){
-    //     this.nominating = false;
-    //     document.getElementById("scene_nominate").style.display = "none";
-    //     document.getElementById("scene_default").style.display = "block";
-    //     this.update(this.game,this.room);
-    // }
+    goBackFromVote(){
+        if(this.allowedToVote){
+            return;
+        }
+        this.voteBack = true;
+        this.voteBackFor = this.game.votingData.voteId;
+        this.update(this.game,this.room);
+    }
 
     vote(guilty){
         if(!this.allowedToVote){
@@ -279,6 +290,9 @@ class SpyFall {
         this.playerSelectArrow.classList.toggle("up",false);
     }
     nominate(e){
+        if(this.game.scene !== "default"){
+            showPopUp("Wait for the vote to end");
+        }
         e = (e !== undefined)?e:{"innerHTML":"Nominate a Player:",id:""};
 
         let id = e.id.substring(3);//np_id
@@ -425,9 +439,7 @@ let spyFallHTML =
                         <div class="locationName spyFallPlayerName unselectable" id="location_worldWar2Squad" onclick="globals.game.guessLocation(this)"><p class="locationName-text">World War 2 Squad</p></div>
                         
                     </div>
-                   
-                   
-                        
+           
                     <div id="hideLocationsScreen" class="button verySmallButton" onclick="globals.game.hideModal()">Go back</div>
                     <h5 id="spyLocationPrompt3" class="locationsPrompt" style="display:none;">Hint: Remember there is a chance all players are spies.</h5>
     
@@ -439,15 +451,12 @@ let spyFallHTML =
 
                             <div class="playerSelectButton unselectable"><div class="playerSelectButtonText"><h3 id="playerSelectName">Nominate a Player:</h3></div><div class="playerSelectButtonIconContainer"><i id="playerSelectArrow" class="arrow down"></i></div></div>
                             <div id="playerSelectionList" class="spyFallPlayerSelectionList">
-<!--                                <div class="playerSelectOption" id="selectPlayer1" onclick="globals.game.nominate(this)"><p>Player 1</p></div>-->
-<!--                                <div class="playerSelectOption" id="selectPlayer2" onclick="globals.game.nominate(this)"><p>Player 2</p></div>-->
-<!--                            -->
+                         
                             </div>
                         </div>
                         <div id="nominateDivider" class="nominateDivider" style="display:none;"><p class="nominateDividerText">or</p></div>
                         <div id="selectAllSpies" style="display:none;" class="button verySmallButton" onclick="globals.game.nominate()">Everyone is a Spy!</div>
 
-                    
                     </div>
                     <div class="flexRow nominateActions">
                         <div id="hideNominationScreen" class="button verySmallButton" onclick="globals.game.hideModal()">Go back</div>
@@ -455,81 +464,43 @@ let spyFallHTML =
                     </div>
 
                 </div>
-                <!--<div id="oldSpyFallNominationsModal" class="modalContentContainer nominateModal" style="display:none;">
-                    <h2>Nominate a player as the spy, and commence a group vote</h2>
-                    <h3>Each player can only do this once per game, once they are all used up, the spy wins</h3>
-                    <h3>The vote must be unanimous(excluding the player who is nominated)</h3>
-                    <div class="ingameplayerListContainer" >
-                        <ul id="nominatePlayers" class="ingame-player-list">
-                        </ul>
-                    </div>
-                    <div id="hideNominationScreen" class="smallerIntroButton" onclick="globals.game.hideModal()">Go back</div>
-
-                </div>-->
+               
             </div>
-			
-            
-    <!--<h3><u> Location List</u></h3>-->
 
-			
 		</div>
 		
-        <!--<div id="scene_guessLocation" class="flexColumn fullHeight fullWidth" style="display:none;">
-            <h2>Guess the Location</h2>
-            <h3>Wrong guess and you lose</h3>
-            
-			<button id="hideGuessLocationScreen" class="smallerIntroButton" onclick="globals.game.hideGuessLocationScreen()" >Go back</button>
-            <ul id="locationRefList" class="locationRefList">
-				<li class="locationReference" onclick="globals.game.guessLocation('airplane')">airplane</li>
-				<li class="locationReference" onclick="globals.game.guessLocation('bank')">bank</li>
-				<li class="locationReference" onclick="globals.game.guessLocation('beach')">beach</li>
-				<li class="locationReference" onclick="globals.game.guessLocation('cathedral')">cathedral</li>
-				<li class="locationReference" onclick="globals.game.guessLocation('circus tent')">circus tent</li>
-				<li class="locationReference" onclick="globals.game.guessLocation('corporate party')">corporate party</li>
-				<li class="locationReference" onclick="globals.game.guessLocation('crusader army')">crusader army</li>
-				<li class="locationReference" onclick="globals.game.guessLocation('casino')">casino</li>
-				<li class="locationReference" onclick="globals.game.guessLocation('day spa')">day spa</li>
-				<li class="locationReference" onclick="globals.game.guessLocation('embassy')">embassy</li>
-				<li class="locationReference" onclick="globals.game.guessLocation('hospital')">hospital</li>
-				<li class="locationReference" onclick="globals.game.guessLocation('hotel')">hotel</li>
-				<li class="locationReference" onclick="globals.game.guessLocation('military base')">military base</li>
-				<li class="locationReference" onclick="globals.game.guessLocation('movie studio')">movie studio</li>
-			</ul>
-			<ul id="locationRefList2" class="locationRefList">
-				<li class="locationReference" onclick="globals.game.guessLocation('ocean liner')">ocean liner</li>
-				<li class="locationReference" onclick="globals.game.guessLocation('passenger train')">passenger train</li>
-				<li class="locationReference" onclick="globals.game.guessLocation('pirate ship')">pirate ship</li>
-				<li class="locationReference" onclick="globals.game.guessLocation('polar station')">polar station</li>
-				<li class="locationReference" onclick="globals.game.guessLocation('police station')">police station</li>
-				<li class="locationReference" onclick="globals.game.guessLocation('restaurant')">restaurant</li>
-				<li class="locationReference" onclick="globals.game.guessLocation('school')">school</li>
-				<li class="locationReference" onclick="globals.game.guessLocation('service station')">service station</li>
-				<li class="locationReference" onclick="globals.game.guessLocation('space station')">space station</li>
-				<li class="locationReference" onclick="globals.game.guessLocation('submarine')">submarine</li>
-				<li class="locationReference" onclick="globals.game.guessLocation('supermarket')">supermarket</li>
-				<li class="locationReference" onclick="globals.game.guessLocation('theater')">theater</li>
-				<li class="locationReference" onclick="globals.game.guessLocation('university')">university</li>
-				<li class="locationReference" onclick="globals.game.guessLocation('world war ii squad')">world war ii squad</li>
-			</ul>
-            
-        </div>-->
         <div id="scene_vote" class="flexColumn fullHeight fullWidth" style="display:none;">
-            <h1 id="vote_playerName">Is Player a spy?</h1>
-            <div id="vote_buttons" style="display:none;">
-                <button id="voteGuilty" class="smallerIntroButton" onclick="globals.game.vote(true)">Yes</button>
-                <button id="voteInnocent" class="smallerIntroButton" onclick="globals.game.vote(false)">No</button>
+            <div class="lessVerticalPagePadding"></div>
+            <h2 class="voteBy">Vote Called By <span id="vote_nominator" class="player-name-text"></span></h2>
+            <div class="horizontalSeperator"></div>
+            <div class="verticalPagePadding"></div>
+            <h1 class="voteFor">Is <span id="vote_nominee" class="player-name-text"></span> A Spy?</h1>
+
+            <div id="vote_controls" class="flexColumn fullWidth" style="display:none;">
+                <div class="flexRowNoCenter threeQuarterWidth spaceAround">
+                    <div id="voteGuilty" class="button verySmallButton voteButton" onclick="globals.game.vote(true)">Yes</div>
+                    <div id="voteInnocent" class="button verySmallButton voteButton" onclick="globals.game.vote(false)">No</div>
+                </div>
             </div>
-            <button id="vote_endGame" class="smallerIntroButton" onclick="endGame()" style="display:none;">End The Game</button>
-			<button id="vote_leaveRoom" class="smallerIntroButton" onclick="leaveRoom()">Leave The Room</button>
+            <div id="vote_info" class="flexColumn fullWidth" style="display:none;">
+                <h1 class="waitingFor">Waiting For <span id="vote_numLeftToVote"></span> Player<span id="vote_numLeftToVotePlural"></span> To Vote</h1>
+                <div class="lessVerticalPagePadding"></div>
+                <div id="vote_backButton" class="button smallButton" onclick="globals.game.goBackFromVote()">Go Back</div>
+            </div>
+
 
         </div>
         <div id="scene_results" class="flexColumn fullHeight fullWidth" style="display:none;">
-            <h1>Results Screen</h1>
-            <h3 id="gameOverReason"></h3>
-            <ul id="resultsPlayers" class="lobby-player-list">
-               
-                
-            </ul>
+            <div class="lessVerticalPagePadding"></div>
+            <h1 class="resultsTitle">Results</h1>
+            <div class="horizontalSeperator"></div>
+
+            <h3 id="gameOverReason" class="gameOverReason"></h3>
+
+            <h3 id="results_location" class="voteBy"></h3>
+            <h3 id="results_spy" class="voteBy"></h3>
+
+            
         </div>
         
     </div>`;

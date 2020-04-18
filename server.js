@@ -1,4 +1,4 @@
-import initializeSockets, {authorize} from "./requestHandlers";
+import initializeSockets from "./requestHandlers";
 import express from 'express';
 
 import Player from './models/Player.js';
@@ -23,7 +23,6 @@ function start() {
 	// app.get('/listRooms',listRooms);
 	// app.get('/listRoomsExtended',listRoomsExtended);
 
-	app.get('/authorize',authorize);
 
 	//I use this to manually change the port when it is being deployed sometimes
 	let port = 8081;

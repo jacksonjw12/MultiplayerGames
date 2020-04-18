@@ -204,6 +204,12 @@ body{
 .fullWidth {
     width: 100%;
 }
+.halfWidth {
+    width:50%;
+}
+.threeQuarterWidth {
+    width:75%;
+}
 .noPadding {
     padding:0;
 }
@@ -328,6 +334,10 @@ body{
         width:80%;
     }
 
+}
+.flexRowNoCenter {
+    display:flex;
+    flex-direction:row;
 }
 
 .playerList{

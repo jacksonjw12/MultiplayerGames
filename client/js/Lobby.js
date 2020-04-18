@@ -9,6 +9,7 @@ class Lobby {
     }
     update(){
         if(!globals.inRoom){
+            this.playerList = [];
             return;
         }
         this.roomTitle.innerHTML = "Room: "+globals.room.name;

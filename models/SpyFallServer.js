@@ -35,7 +35,7 @@ export default class SpyFallServer{
         this.gameOverReason = {"code":undefined,"description":""};
 
 		this.location = locations[Math.floor(Math.random()*locations.length)];
-        this.scene = "default";//default, vote, results
+        this.scene = undefined;//default, vote, results
 
 
 
@@ -72,6 +72,7 @@ export default class SpyFallServer{
                 roleIndex++;
             }
 	    }
+	    this.scene ="default";
     }
     createSpyFullGame(){
 
@@ -79,11 +80,12 @@ export default class SpyFallServer{
             this.playerData.push({"id":this.room.players[p].id,"name":this.room.players[p].name,"identity":"spy","role":"","canNominate":true});
             this.players.push({"id":this.room.players[p].id,"name":this.room.players[p].name,"dummy":this.room.players[p].dummy})
         }
+        this.scene ="default";
     }
     resolveGame(reasonCode,reasonDescription, skipResults){
 	    skipResults = (skipResults !== undefined)?skipResults:false;
 	    console.log("Ending Game because: ", reasonCode);
-	    this.gameOverReason = {"code":reasonCode,"description":reasonDescription};
+	    this.gameOverReason = {"code":reasonCode,"description":reasonDescription,"spyFullGame":this.spyFullGame,"location":this.location.name};
 
 	    if(!skipResults){
 	        this.scene = "results";
@@ -115,7 +117,16 @@ export default class SpyFallServer{
 
         this.scene = "vote";
         let nomineeGuilty = nominee.playerData.identity === "spy";
-        this.votingData = {"votingResults":[],"finishedVoting":[{"id":nominator.id},{"id":nominee.playerData.id}],"nominatorId":nominator.id,"nomineeId":nominee.playerData.id,"nomineeName":nominee.playerData.name,"nomineeGuilty":nomineeGuilty};
+        this.votingData = {
+            "voteId":nominator.id + nominee.id,
+            "votingResults":[],
+            "finishedVoting":[{"id":nominator.id},{"id":nominee.playerData.id}],
+            "nominatorId":nominator.id,
+            "nominatorName":nominator.name,
+            "nomineeId":nominee.playerData.id,
+            "nomineeName":nominee.playerData.name,
+            "nomineeGuilty":nomineeGuilty
+        };
 
         if(this.room.realPlayers !== this.room.players.length){
             for(let p = 0; p<this.players.length; p++){
@@ -139,16 +150,19 @@ export default class SpyFallServer{
 
     }
     handleGuessLocation(interaction, socket){
+	    if(this.scene !== "default"){
+	        socket.emit("errorMessage",{"err":"You are unable to do that at this time"});
+        }
 	    let player = this.getGamePlayerData(socket.player);
 	    if(player.playerData.identity === "spy"){
 	        if(interaction.locationName === this.location.name && !this.spyFullGame){
 	            this.resolveGame("successfulSpyGuess","The Spy Guessed The Location, Innocents Lose!");
             }
             else if(!this.spyFullGame){
-                this.resolveGame("wrongSpyGuess", "The Spy Guessed The <u>Wrong</u> Location, Innocents Win!");
+                this.resolveGame("wrongSpyGuess", "The Spy Guessed The Wrong Location, Innocents Win!");
             }
             else{
-                this.resolveGame("spyFullFail", socket.player.name + " Guessed a Location, But You Were All Spies!");
+                this.resolveGame("spyFullFail", `<span class="player-name-text" style="text-decoration-color:#${socket.player.id}">${socket.player.name}</span> Guessed a Location, But You Were All Spies! They Lose!`);
 
             }
         }
@@ -158,9 +172,15 @@ export default class SpyFallServer{
         }
     }
     resolveVote(votePassed){
+	    let nominationsLeft = 0;
+	    for(let p = 0; p < this.playerData.length; p++){
+            if(this.playerData[p].canNominate){
+                nominationsLeft++;
+            }
+        }
 	    if(votePassed && this.votingData.nomineeGuilty){
             if(this.spyFullGame){
-                this.resolveGame("spyFullFailed","Everyone Loses, You Were <u>All</u> Spies!")
+                this.resolveGame("spyFullFailed","Everyone Loses, You Were All Spies!")
             }
             else{
                 this.resolveGame("spyFound", "The Spy Was Found, Innocents Win!")
@@ -170,9 +190,22 @@ export default class SpyFallServer{
             this.resolveGame("spyNotFound", "Wrong Guess, The Spy Wins!")
         }
         else{
-            this.room.sendMessageToPlayers("The vote has failed",{"autoClose":true});
-            this.scene = "default";
-            this.room.forcePlayerSync();
+            if(nominationsLeft === 0){
+                 if(this.spyFullGame){
+                    this.resolveGame("spyFullFailed","You Were All Spies! But You Used Up All The Nominations. So Everyone Loses.")
+
+                 }
+                 else{
+                    this.resolveGame("noNominations","Everyone Ran Out Of Guesses, The Spy Wins!")
+
+                 }
+            }
+            else{
+                this.room.sendMessageToPlayers("The vote has failed",{"autoClose":true});
+                this.scene = "default";
+                this.room.forcePlayerSync();
+            }
+
         }
 
     }
@@ -214,17 +247,13 @@ export default class SpyFallServer{
 	        socket.emit("errorMessage",{"err":"That can't be done at this time"});
 	        return;
         }
-	    let playerData = {};
-	    let nominationsLeft = 0;
 
+        let playerData = {};
 	    for(let p = 0; p < this.playerData.length; p++){
 	        if(this.playerData[p].id === socket.player.id){
 	            playerData = this.playerData[p];
+	            break;
             }
-            if(this.playerData[p].canNominate){
-                nominationsLeft++;
-            }
-
         }
 
 	    if(playerData.canNominate){
@@ -235,7 +264,8 @@ export default class SpyFallServer{
                         return;
                     }
                     if(this.spyFullGame){
-                        this.resolveGame("correctSpyFullGuess",playerData.name + " Figured Out Everyone Was A Spy, So They Win.");
+
+                        this.resolveGame("correctSpyFullGuess",`<span class="player-name-text" style="text-decoration-color:#${playerData.id}">${playerData.name}</span> Figured Out Everyone Was A Spy, So They Win.`);
                     }
                     else{
                         this.resolveGame("incorrectSpyFullGuess", "Innocents Win, The Spy Thought Everyone Else Was A Spy.");
@@ -248,14 +278,7 @@ export default class SpyFallServer{
             else{
                 playerData.canNominate = false;
 
-                if(nominationsLeft === 1){
-                    this.resolveGame("noNominations","Everyone Ran Out Of Guesses, The Spy Wins!")
-                }
-                else{
-                    this.startVote(socket.player,this.getGamePlayerData(interaction.nomineeId,true));
-                }
-
-
+                this.startVote(socket.player,this.getGamePlayerData(interaction.nomineeId,true));
             }
         }
         else{
@@ -291,6 +314,7 @@ export default class SpyFallServer{
 	    if(this.scene === "vote"){
 	        return {
 	            "nominatorId":this.votingData.nominatorId,
+                "nominatorName":this.votingData.nominatorName,
                 "numLeftToVote":this.players.length - this.votingData.finishedVoting.length,
                 "nomineeId":this.votingData.nomineeId,
                 "nomineeName":this.votingData.nomineeName,

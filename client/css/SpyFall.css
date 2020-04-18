@@ -324,3 +324,64 @@
         height:15vw;
     }
 }
+
+
+/* VOTE */
+.horizontalSeperator {
+    width:50%;
+    height:1px;
+    background-color:black;
+}
+
+h2.voteBy,h1.voteFor,h1.waitingFor,h3.gameOverReason,h1.resultsTitle {
+    text-align:center;
+}
+
+
+@media (orientation: landscape) {
+    h2.voteBy{
+        font-size:2.5vw;
+    }
+    h1.voteFor {
+        font-size:3.5vw;
+    }
+    h1.waitingFor {
+        font-size:3.5vw;
+    }
+    .voteButton {
+        font-size:3.5vw;
+    }
+
+    h1.resultsTitle {
+        font-size:3.5vw;
+        margin-bottom:0;
+    }
+
+    h3.gameOverReason {
+        font-size:3vw;
+    }
+
+}
+
+@media (orientation: portrait) {
+    h2.voteBy{
+        font-size:5vw;
+    }
+    h1.voteFor {
+        font-size:5vw;
+    }
+    h1.waitingFor {
+        font-size:5vw;
+    }
+    .voteButton {
+        font-size:7vw;
+    }
+    h1.resultsTitle {
+        font-size:5vw;
+        margin-bottom:0;
+    }
+    h3.gameOverReason {
+        font-size:5vw;
+    }
+
+}
