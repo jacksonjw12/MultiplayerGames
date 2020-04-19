@@ -42,7 +42,7 @@ export default class SpyFallServer{
         this.spyFullAllowed = this.gameOptions.playWithSpyFull;
 
         this.spyFullGame = false;
-        if(Math.random() > .50 && this.spyFullAllowed){
+        if(Math.random() < .15 && this.spyFullAllowed){
             this.spyFullGame = true;
             this.createSpyFullGame();
         }
